@@ -1,301 +1,319 @@
-# DocumentAI
+# 🤖 DocumentAI
+## Production-Ready LLM Document Intelligence Pipeline
 
-DocumentAI extracts structured information from PDF, DOCX, and TXT documents using local document processing and LLM-backed Pydantic schemas.
+<p align="center">
 
-The current pipeline is:
+Transform unstructured documents into reliable, structured, and validated data using modern LLM pipelines.
 
-```text
-File
-  |
-  v
-DocumentLoader
-  |
-  v
-DocumentProcessor
-  |
-  v
-RecursiveChunker
-  |
-  v
-ordered document text
-  |
-  v
-DocumentExtractor
-  |
-  v
-validated Pydantic model
-  |
-  v
-JSON / dict
+</p>
+
+---
+
+## 🚀 Overview
+
+DocumentAI is an AI-powered document intelligence system designed to extract structured information from real-world documents such as invoices and contracts.
+
+The system automatically:
+
+- 📄 Loads documents (PDF / DOCX / TXT)
+- 🧹 Cleans and normalizes text
+- ✂️ Performs intelligent chunking
+- 🧠 Uses Large Language Models for understanding
+- ✅ Generates schema-validated JSON output
+- 🚀 Provides production APIs and user interfaces
+
+Unlike simple LLM applications that return raw text, DocumentAI produces reliable structured outputs suitable for integration into business workflows.
+
+---
+
+## 🎯 Business Problem
+
+Organizations process thousands of documents every day:
+
+- invoices
+- contracts
+- reports
+- agreements
+
+Manual extraction is:
+
+❌ slow  
+❌ expensive  
+❌ error-prone  
+
+DocumentAI automates this process by converting unstructured documents into machine-readable business data.
+
+---
+
+# ✨ Key Features
+
+## 🧠 LLM-Powered Information Extraction
+
+- Multi-provider LLM architecture
+- Google Gemini as primary provider
+- OpenRouter fallback mechanism
+- Provider abstraction for future model expansion
+
+
+## 📦 Structured Output Generation
+
+Instead of returning unreliable raw text responses, DocumentAI generates validated structured outputs.
+
+Powered by:
+
+- ✅ **Pydantic Validation** — Ensures data correctness and schema compliance
+- ✅ **Schema-Driven Extraction** — Uses predefined schemas for reliable information extraction
+- ✅ **Type-Safe Responses** — Provides predictable and integration-ready outputs
+
+
+```json
+{
+ "document_type": "invoice",
+ "invoice_number": "INV-1024",
+ "vendor": "ABC Company",
+ "total": 12500000
+}
 ```
 
-## Current status
+---
 
-The `feature/pipeline` branch contains the Person 3 integration implementation.
-
-- `DocumentPipeline.run(file_path, document_type)` connects all processing and extraction stages.
-- `DocumentType` currently supports `INVOICE`, `CONTRACT`, and `GENERAL`.
-- The pipeline returns the validated Pydantic model produced by `DocumentExtractor`.
-- Tests use fake extractors, so normal automated tests do not call Gemini, OpenRouter, or any other external LLM.
-- The current test suite passes with 18 tests.
-
-For a complete Persian explanation of the implementation, contracts, design decisions, tests, and limitations, see [README_PERSON3_PIPELINE.md](README_PERSON3_PIPELINE.md).
-
-## Project structure
+# 🔄 End-to-End AI Pipeline
 
 ```text
+Document (PDF / DOCX / TXT)
+          |
+          ↓
+   Document Loader
+          |
+          ↓
+   Text Processing
+          |
+          ↓
+ Unicode Normalization
+ Text Cleaning
+ Recursive Chunking
+          |
+          ↓
+ LLM Extraction Engine
+          |
+          ↓
+ Structured JSON Output
+          |
+          ↓
+ Validated Pydantic Model
+
+```
+
+---
+
+## 🏗 Architecture
+
+```text
+
+                         PDF / DOCX / TXT
+
+                                |
+                                ↓
+
+                      ┌─────────────────┐
+                      │ Document Loader │
+                      └────────┬────────┘
+
+                               |
+                               ↓
+
+                 ┌────────────────────────┐
+                 │ Text Processing Layer  │
+                 ├────────────────────────┤
+                 │ Unicode Normalization  │
+                 │ Text Cleaning          │
+                 │ Recursive Chunking     │
+                 └───────────┬────────────┘
+
+                               |
+                               ↓
+
+                 ┌────────────────────────┐
+                 │ LLM Extraction Engine  │
+                 ├────────────────────────┤
+                 │ Google Gemini          │
+                 │ OpenRouter Fallback    │
+                 └───────────┬────────────┘
+
+                               |
+                               ↓
+
+                 ┌────────────────────────┐
+                 │ Structured Output      │
+                 │ Pydantic Models        │
+                 └───────────┬────────────┘
+
+                               |
+                 ┌─────────────┴─────────────┐
+                 ↓                           ↓
+
+            ┌──────────┐              ┌───────────┐
+            │ FastAPI  │              │ Streamlit │
+            │ Backend  │              │    UI     │
+            └──────────┘              └───────────┘
+
+```
+
+---
+
+## 🛠 Tech Stack
+
+| Category | Technology |
+|----------|------------|
+| Language | Python 3.11+ |
+| LLM Framework | LangChain |
+| AI Models | Google Gemini, OpenRouter |
+| API | FastAPI |
+| UI | Streamlit |
+| Data Validation | Pydantic v2 |
+| Testing | Pytest |
+| Deployment | Docker |
+
+---
+
+## 📂 Project Structure
+
+```text
+
 DocumentAI/
-|-- src/
-|   |-- loaders/
-|   |   |-- document_loader.py       # Extension-based loader routing
-|   |   |-- pdf_loader.py            # PDFLoader
-|   |   |-- docx_loader.py           # DOCXLoader
-|   |   +-- txt_loader.py            # TXTLoader
-|   |-- processing/
-|   |   |-- cleaners/                # Text, Unicode, and whitespace cleaners
-|   |   |-- chunking/                # RecursiveChunker
-|   |   +-- pipeline.py              # DocumentProcessor
-|   |-- extraction/
-|   |   |-- extractor.py             # Schema selection and provider fallback
-|   |   |-- prompts.py               # PromptBuilder
-|   |   +-- providers/               # LLMProvider, Gemini, and OpenRouter
-|   |-- schemas/                     # Invoice, Contract, and GeneralDocument
-|   |-- pipeline/
-|   |   |-- pipeline.py              # DocumentPipeline
-|   |   +-- __init__.py              # Public pipeline export
-|   +-- utils/
-|       |-- json_utils.py            # Pydantic dict/JSON serialization
-|       +-- __init__.py              # Public utility exports
-|-- tests/
-|   |-- test_pipeline.py
-|   |-- test_extractor.py
-|   +-- test_schemas.py
-|-- README.md
-|-- README_PERSON3_PIPELINE.md
-|-- requirements.txt
-+-- Dockerfile
+
+├── app/
+│   ├── api/
+│   └── streamlit_app/
+├── src/
+│   ├── loaders/
+│   │   └── PDF/DOCX/TXT processing
+│   ├── processing/
+│   │   ├── cleaners
+│   │   └── chunking
+│   ├── extraction/
+│   │   ├── prompts
+│   │   ├── providers
+│   │   └── extractor
+│   ├── schemas/
+│   │   └── Structured models
+│   └── pipeline/
+│       └── End-to-end orchestration
+├── tests/
+├── Dockerfile
+└── README.md
+
 ```
 
-There is currently no `config.py`. Provider settings are read from environment variables by the existing providers, and chunking settings can be supplied by injecting a configured `RecursiveChunker`.
+---
 
-## Team responsibilities
+## ⚡ Quick Start
 
-### Person 1: document processing
+```bash
+git clone <repository-url>
 
-Person 1 owns `src/loaders/` and `src/processing/`.
+cd DocumentAI
 
-```text
-File -> Document -> clean Document -> chunks
+python -m venv .venv
+
+pip install -r requirements.txt
 ```
 
-The main contracts are:
+---
+
+## 🔑 Configuration
+
+```bash
+export GEMINI_API_KEY="your-key"
+
+# optional fallback
+
+export OPENROUTER_API_KEY="your-key"
+```
+
+---
+
+## 🚀 Usage
 
 ```python
-DocumentLoader.load(file: Path | str) -> list[Document]
-DocumentProcessor.process(documents: list[Document]) -> list[Document]
-RecursiveChunker.chunk(document: Document) -> list[Document]
-```
-
-`DocumentLoader` routes `.pdf`, `.docx`, and `.txt` files to the corresponding loader. `DocumentProcessor` applies cleaners sequentially while preserving metadata. `RecursiveChunker` accepts one `Document` at a time.
-
-### Person 2: LLM extraction
-
-Person 2 owns `src/extraction/` and `src/schemas/`.
-
-```text
-text -> prompt -> provider -> schema -> validated Pydantic model
-```
-
-The main contract is:
-
-```python
-DocumentExtractor.extract(
-    document_text: str,
-    document_type: DocumentType,
-) -> BaseModel
-```
-
-`DocumentExtractor` selects the schema using `DocumentType`, builds a prompt with `PromptBuilder`, and tries providers in order. If one provider fails, the next provider is used as a fallback.
-
-### Person 3: integration
-
-Person 3 owns `src/pipeline/`, `src/utils/`, and `tests/test_pipeline.py`.
-
-The current integration contract is:
-
-```text
-Path | str
-  -> list[Document]
-  -> list[Document]
-  -> list[Document]
-  -> str
-  -> BaseModel
-```
-
-The pipeline loops over processed documents because `RecursiveChunker.chunk()` accepts a single `Document`. It flattens the resulting chunk lists, reads each `chunk.page_content`, preserves order, joins the text, and calls the extractor once.
-
-## Usage
-
-### Environment variables
-
-Never place API keys in source code. The existing providers read these variables:
-
-```powershell
-$env:GEMINI_API_KEY = "your-gemini-key"
-$env:OPENROUTER_API_KEY = "your-openrouter-key"
-$env:OPENROUTER_MODEL = "your-model-name"
-```
-
-### Invoice extraction with Gemini
-
-```python
-from src.extraction.extractor import DocumentExtractor
-from src.extraction.providers.gemini_provider import GeminiProvider
-from src.pipeline import DocumentPipeline
-from src.schemas.common import DocumentType
-from src.utils import model_to_dict, model_to_json
-
-provider = GeminiProvider()
-extractor = DocumentExtractor(providers=[provider])
-pipeline = DocumentPipeline(extractor=extractor)
-
 result = pipeline.run(
-    "sample.pdf",
-    DocumentType.INVOICE,
+    "invoice.pdf",
+    DocumentType.INVOICE
 )
 
 print(result)
-print(model_to_dict(result))
-print(model_to_json(result))
 ```
 
-### Contract extraction with provider fallback
+### REST API
 
-```python
-from src.extraction.extractor import DocumentExtractor
-from src.extraction.providers.gemini_provider import GeminiProvider
-from src.extraction.providers.openrouter_provider import OpenRouterProvider
-from src.pipeline import DocumentPipeline
-from src.schemas.common import DocumentType
-from src.utils import model_to_json
-
-providers = [
-    GeminiProvider(),
-    OpenRouterProvider(),
-]
-extractor = DocumentExtractor(providers=providers)
-pipeline = DocumentPipeline(extractor=extractor)
-
-result = pipeline.run(
-    "contract.docx",
-    DocumentType.CONTRACT,
-)
-
-print(result)
-print(model_to_json(result))
-```
-
-To customize chunking, inject a configured chunker:
-
-```python
-from src.processing import RecursiveChunker
-
-chunker = RecursiveChunker(chunk_size=2000, chunk_overlap=300)
-pipeline = DocumentPipeline(
-    extractor=extractor,
-    chunker=chunker,
-)
-```
-
-## Multi-chunk strategy
-
-The current MVP does not perform a complete `Invoice` or `Contract` extraction independently for every chunk. Required fields may be distributed across different chunks, so independent full-schema extraction could produce incomplete Pydantic models.
-
-Instead, the pipeline joins all non-empty chunk text in its original order and calls `DocumentExtractor.extract()` once. This keeps complete-schema validation in one place.
-
-For very large documents, the joined text may exceed the LLM context window. Future improvements could use partial schemas, per-chunk extraction with aggregation, batching, or map-reduce extraction.
-
-## Serialization
-
-The pipeline returns a Pydantic model. Use the public utilities for JSON-compatible output:
-
-```python
-from src.utils import model_to_dict, model_to_json
-
-as_dict = model_to_dict(result)
-as_json = model_to_json(result)
-```
-
-These helpers use native Pydantic v2 APIs: `model_dump(mode="json")` and `model_dump_json()`.
-
-## Installation and tests
-
-The repository currently has an empty `requirements.txt`, although the source uses Pydantic, LangChain, provider SDKs, and pytest. In an environment where dependencies are already available, run:
+Run:
 
 ```bash
-python -m pytest
+uvicorn app.api.api_app:app --reload
 ```
 
-On the development machine, the default pytest temp directory had a permission restriction. The complete suite was verified with:
+Swagger:
 
 ```bash
-python -m pytest --basetemp .pytest-temp
+http://localhost:8000/docs
 ```
 
-Result:
-
-```text
-18 passed
-```
-
-Additional validation:
+### Streamlit Demo
 
 ```bash
-python -m compileall -q src tests
-git diff --check
+streamlit run app/streamlit_app/app.py
 ```
 
-No automated test calls a real LLM provider.
+---
 
-## Known limitations
+# 🚀 Vision & Roadmap
 
-- `OpenRouterProvider` implements the expected `extract(prompt, schema)` method but does not inherit `LLMProvider`.
-- `src/processing/__init__.py` has a pre-existing `__all__` comma issue.
-- `TXTLoader` wraps missing-file errors in a `RuntimeError` from the underlying LangChain loader.
-- The main pipeline currently joins all chunks, which is not suitable for documents larger than the model context window.
+DocumentAI represents the first step toward building an intelligent document processing platform designed to transform unstructured information into data that is usable, reliable, and processable by software systems.
 
-These issues were documented but left unchanged because they are outside the minimal Person 3 integration scope.
+Moving forward, the project will focus on building an Enterprise AI system capable of intelligently understanding, searching, analyzing, and making decisions based on documents.
 
-## Git workflow
+Future development goals:
 
-Work on the assigned feature branch and review changes before committing:
+- 🧠 **Large Language Models (LLMs)**
+- Enhancing capabilities for understanding and extracting information from complex documents
+- Supporting various language models and local models
 
-```bash
-git status
-git branch --show-current
-git diff
-git diff --check
-git diff --stat
-```
 
-Do not push, merge, rebase, or open a Pull Request until the implementation has been reviewed.
+- 🔎 **Retrieval-Augmented Generation (RAG)**
+- Creating an intelligent search system across document collections
+- Generating responses based on organizational knowledge
+- Reducing language model errors by utilizing authoritative sources
 
-## Commit message rules
 
-Commit messages must follow:
+- 🤖 **Agentic AI Workflows**
+- Developing intelligent agents to perform multi-step tasks
+- Automating the planning, analysis, and execution of document-related processes
 
-```text
-<type>: <description>
-```
 
-Examples:
+- 🏢 **Enterprise Document Automation**
+- Automating organizational processes
+- Integrating with business and information management systems
+- Providing scalable solutions for enterprises
 
-```text
-feat: add PDF document loader
-feat: integrate document processing pipeline
-test: add pipeline integration tests
-docs: update project documentation
-fix: normalize repeated line breaks
-```
 
-Common types are `feat`, `fix`, `test`, `refactor`, `docs`, and `chore`.
+DocumentAI's ultimate goal is to build a new generation of intelligent systems that act like expert assistants—capable of understanding and analyzing organizational documents to generate operational value.
+
+---
+
+# 👥 Developers
+
+Created by the **AI Builders** team
+
+> We Don't Compete. We Replace.
+
+| Engineer | Responsibility |
+|----------|----------------|
+| [![Hossein Heydari](https://github.com/HosseinHeydari2004.png)](https://github.com/HosseinHeydari2004) | Document Loading, Processing Pipeline |
+| [![Nastaranyavari](https://github.com/Nastaranyavari.png)](https://github.com/Nastaranyavari) | LLM Extraction, Schemas |
+| [![Nastaranyavari](https://github.com/Nastaranyavari.png)](https://github.com/Nastaranyavari) | Pipeline Integration, Testing |
+
+---
+
+## 📄 License
+
+MIT License
