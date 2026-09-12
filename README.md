@@ -310,7 +310,7 @@ Created by the **AI Builders** team
 |----------|----------------|
 | [![Hossein Heydari](https://github.com/HosseinHeydari2004.png)](https://github.com/HosseinHeydari2004) | Document Loading, Processing Pipeline |
 | [![Nastaranyavari](https://github.com/Nastaranyavari.png)](https://github.com/Nastaranyavari) | LLM Extraction, Schemas |
-| [![Nastaranyavari](https://github.com/Nastaranyavari.png)](https://github.com/Nastaranyavari) | Pipeline Integration, Testing |
+| [![behrad](https://github.com/behradtbr.png)]([https://github.com/Nastaranyavari](https://github.com/behradtbr)) | Pipeline Integration, Testing |
 
 ---
 
