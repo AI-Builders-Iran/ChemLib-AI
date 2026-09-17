@@ -1,0 +1,57 @@
+SOFTWARE DEVELOPMENT SERVICES AGREEMENT
+
+Contract Number: CNT-2026-0142
+Date: September 12, 2026
+
+This Agreement is entered into by and between the following parties:
+
+Party One (Client): Novin Afzar Pars Co. (Private Joint Stock Company)
+Represented by: Mr. Reza Ahmadi, Chief Executive Officer
+Address: No. 120, Valiasr Street, Tehran, Iran
+
+Party Two (Contractor): Arya Smart Technology Institute
+Represented by: Ms. Sara Mohammadi, Project Manager
+Address: No. 45, North Karegar Street, Tehran, Iran
+
+Subject of the Agreement:
+Design, development, and deployment of an AI-based document management
+system for automatically extracting information from invoices and
+contracts belonging to the Client, including analysis, implementation,
+testing, and technical support for a period of six months.
+
+Term of the Agreement:
+Start Date: October 1, 2026
+End Date: March 21, 2027
+
+Total Contract Value:
+The total value of this Agreement is USD 20,000 (twenty thousand US
+dollars), payable in four quarterly installments.
+
+Payment Terms:
+- First installment: 25% of the total amount, upon signing the Agreement
+- Second installment: 25% of the total amount, upon delivery of the MVP
+- Third installment: 25% of the total amount, upon completion of user
+  acceptance testing (UAT)
+- Fourth installment: remaining 25%, upon final delivery and deployment
+
+Termination Clause:
+Either party may terminate this Agreement by giving 30 days' prior
+written notice. Upon termination, the Contractor shall deliver all code
+and documentation produced up to the termination date to the Client.
+
+Confidentiality Clause:
+Both parties agree to treat all technical, financial, and business
+information exchanged during the performance of this Agreement as
+confidential and shall not disclose it to any third party without the
+prior written consent of the other party. This obligation shall survive
+for two years after the termination or expiration of this Agreement.
+
+Governing Law:
+This Agreement shall be governed by the laws of the Islamic Republic of
+Iran. Any disputes arising from this Agreement shall be subject to the
+exclusive jurisdiction of the competent courts of Tehran.
+
+Signatures:
+
+Party One: Reza Ahmadi — CEO, Novin Afzar Pars Co.
+Party Two: Sara Mohammadi — Project Manager, Arya Smart Technology Institute

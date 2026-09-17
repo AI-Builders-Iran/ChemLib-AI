@@ -1,0 +1,38 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment variables / secrets
+.env
+.env.*
+!.env.example
+
+# Tests / docs
+tests/
+.pytest_cache/
+.pytest-temp/
+htmlcov/
+.coverage
+README.md
+README_PERSON3_PIPELINE.md
+
+# OS
+.DS_Store
+Thumbs.db
