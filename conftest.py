@@ -1,0 +1,1 @@
+# ensures project root is on sys.path for pytest test discovery

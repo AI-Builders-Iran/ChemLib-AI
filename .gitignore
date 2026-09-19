@@ -6,9 +6,6 @@
 __pycache__/
 *.py[cod]
 *.egg-info/
-*.cpython-313.pyc
-*.pyc
-src/__pycache__/
 .eggs/
 build/
 dist/
@@ -40,4 +37,6 @@ Thumbs.db
 # Logs
 *.log
 *.rar
-tests/test.py
+
+# Tests
+tests/
