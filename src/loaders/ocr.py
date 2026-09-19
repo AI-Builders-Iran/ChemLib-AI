@@ -1,84 +1,61 @@
+# src/loaders/ocr.py
+import logging
+import os
+import time
 from pathlib import Path
 
-import cv2
-import numpy as np
-import pytesseract
 from pdf2image import convert_from_path
 
-TESSERACT_PATH = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-POPPLER_PATH = (
-    r"C:\Users\hosse\Downloads\Release-24.08.0-0"
-    r"\poppler-24.08.0\Library\bin"
+from rag.schemas import OCRResult
+from src.extraction.providers.gemini_provider import GeminiProvider
+
+logger = logging.getLogger(__name__)
+
+POPPLER_PATH = os.getenv("POPPLER_PATH")
+
+OCR_PROMPT = (
+    "Transcribe all text visible in this image exactly as written. "
+    "The text may be in Persian (Farsi) and/or English, or a mix of both. "
+    "Preserve line breaks where meaningful. Do not translate, summarize, "
+    "or add any commentary — output only the transcribed text."
 )
 
-pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
-
-DEFAULT_LANGUAGE = "fas+eng"
-
-
-def preprocess_image(image):
-    """
-    Basic preprocessing for scanned document OCR.
-    """
-
-    # PIL -> OpenCV
-    img = np.array(image)
-
-    # RGB -> grayscale
-    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-
-    # Light denoising
-    gray = cv2.fastNlMeansDenoising(
-        gray,
-        None,
-        h=10,
-        templateWindowSize=7,
-        searchWindowSize=21,
-    )
-
-    # Improve contrast
-    gray = cv2.normalize(
-        gray,
-        None,
-        0,
-        255,
-        cv2.NORM_MINMAX,
-    )
-
-    return gray
+MAX_RETRIES = 3
+RETRY_DELAY_SECONDS = 5
 
 
-def ocr_pdf_page(
-        file: Path | str,
-        page_number: int,
-        language: str = DEFAULT_LANGUAGE,
-        dpi: int = 300,
-):
-    """
-    OCR one PDF page.
-
-    page_number is 0-indexed.
-    """
-
-    images = convert_from_path(
-        str(file),
-        first_page=page_number + 1,
-        last_page=page_number + 1,
-        dpi=dpi,
-        poppler_path=POPPLER_PATH,
-    )
+def ocr_pdf_page(file: Path | str, page_number: int) -> str:
+    """Rasterize one PDF page (0-indexed) and OCR it via Gemini Vision."""
+    try:
+        images = convert_from_path(
+            str(file),
+            first_page=page_number + 1,
+            last_page=page_number + 1,
+            dpi=300,
+            poppler_path=POPPLER_PATH,
+        )
+    except Exception as e:
+        logger.error(f"PDF rasterization failed for {file} page {page_number}: {e}")
+        return ""
 
     if not images:
         return ""
 
-    image = images[0]
+    provider = GeminiProvider()
 
-    processed = preprocess_image(image)
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            result = provider.extract_image(image=images[0], schema=OCRResult, prompt=OCR_PROMPT)
+            return result.text.strip()
+        except Exception as e:
+            is_last_attempt = attempt == MAX_RETRIES
+            logger.warning(
+                f"Gemini OCR attempt {attempt}/{MAX_RETRIES} failed for "
+                f"{file} page {page_number}: {e}"
+            )
+            if is_last_attempt:
+                logger.error(f"Gemini OCR permanently failed for {file} page {page_number}: {e}")
+                return ""
+            time.sleep(RETRY_DELAY_SECONDS * attempt)  # backoff: 5s, 10s
 
-    text = pytesseract.image_to_string(
-        processed,
-        lang=language,
-        config="--oem 3 --psm 6",
-    )
-
-    return text.strip()
+    return ""

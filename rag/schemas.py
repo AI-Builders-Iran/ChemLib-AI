@@ -9,6 +9,10 @@ class ChunkResult(BaseModel):
     score: float
 
 
+class OCRResult(BaseModel):
+    text: str
+
+
 class RAGAnswer(BaseModel):
     answer: str
     grounded: str
