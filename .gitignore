@@ -1,6 +1,7 @@
 # IDE
 .idea/
 .vscode/
+*.iml
 
 # Python
 __pycache__/
@@ -36,6 +37,8 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Rar
 *.rar
 
 # Tests
