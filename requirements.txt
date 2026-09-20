@@ -1,24 +1,54 @@
+# ==============================
 # Core
+# ==============================
 pydantic>=2.7,<3
 
-# Document loading (Person 1)
+# ==============================
+# LangChain
+# ==============================
+langchain>=1.0
 langchain-core>=0.3
 langchain-community>=0.3
 langchain-text-splitters>=0.3
+
+# ==============================
+# Document Loading & Processing
+# ==============================
 pypdf>=4.0
 docx2txt>=0.8
+pdf2image>=1.17
 
-# LLM providers (Person 2)
+# ==============================
+# LLM Providers
+# ==============================
 google-genai>=0.3
 openai>=1.40
 
+# ==============================
+# Vector Store
+# ==============================
+langchain-chroma>=0.2
+chromadb>=1.0
+
+# ==============================
+# Embedding
+# ==============================
+sentence-transformers
+
+
+# ==============================
 # API
+# ==============================
 fastapi>=0.115
 uvicorn[standard]>=0.30
 python-multipart>=0.0.9
 
+# ==============================
 # UI
+# ==============================
 streamlit>=1.38
 
-# Tests
+# ==============================
+# Testing
+# ==============================
 pytest>=8.0
