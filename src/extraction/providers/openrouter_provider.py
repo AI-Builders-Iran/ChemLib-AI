@@ -11,7 +11,7 @@ class OpenRouterProvider:
     def __init__(
         self,
         api_key: str | None = None,
-        model_names: list[str] | None = None,
+        model_names: list[str] | str | None = None,
     ) -> None:
         """
         Initialize the OpenRouter provider via LangChain's init_chat_model.
@@ -30,7 +30,12 @@ class OpenRouterProvider:
         # OpenRouter needs these env vars set for LangChain to pick them up
         os.environ["OPENROUTER_API_KEY"] = self._api_key
 
-        self._model_names = model_names or "auto"
+        # OpenRouter needs a full model slug: the bare word "auto" is not one, the Auto
+        # Router is "openrouter/auto". Override with OPENROUTER_MODEL in .env
+        # (e.g. "openrouter/free" to stay on free models only).
+        if isinstance(model_names, (list, tuple)):
+            model_names = model_names[0] if model_names else None
+        self._model_names = model_names or os.getenv("OPENROUTER_MODEL") or "openrouter/auto"
 
         # "auto" lets init_chat_model use the provider's default model,
         # but OpenRouter needs a concrete model slug, so pass the first one.
@@ -38,6 +43,10 @@ class OpenRouterProvider:
             self._model_names,
             model_provider="openrouter",
         )
+
+    @property
+    def model_name(self) -> str:
+        return self._model_names
 
     def extract(
         self,

@@ -1,0 +1,18 @@
+[theme]
+base = "light"
+primaryColor = "#B5305F"
+backgroundColor = "#F5F7F6"
+secondaryBackgroundColor = "#E9EEF0"
+textColor = "#14263A"
+font = "sans serif"
+
+[client]
+# Hides developer-only menu items so the app looks clean in front of a client.
+toolbarMode = "minimal"
+
+[server]
+# Library books are large; the default limit is 200 MB per file.
+maxUploadSize = 500
+
+[browser]
+gatherUsageStats = false

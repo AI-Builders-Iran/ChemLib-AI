@@ -24,6 +24,10 @@ env/
 .env.*
 !.env.example
 
+# Vector store data
+vector_database/
+chroma_data/
+
 # Tests / docs
 tests/
 .pytest_cache/

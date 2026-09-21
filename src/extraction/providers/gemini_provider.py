@@ -13,7 +13,7 @@ class GeminiProvider(LLMProvider):
     def __init__(
             self,
             api_key: str | None = None,
-            model_name: str = "gemini-3.6-flash",
+            model_name: str | None = None,
     ) -> None:
         """
         Initialize the Gemini provider.
@@ -27,7 +27,13 @@ class GeminiProvider(LLMProvider):
             raise ValueError("GEMINI_API_KEY is not set.")
 
         self._client = genai.Client(api_key=self._api_key)
-        self._model_name = model_name
+        # Free-tier quotas are per model: set GEMINI_MODEL in .env to switch models
+        # without touching the code.
+        self._model_name = model_name or os.getenv("GEMINI_MODEL") or "gemini-3.6-flash"
+
+    @property
+    def model_name(self) -> str:
+        return self._model_name
 
     def extract(
             self,
