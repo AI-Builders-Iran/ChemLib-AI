@@ -1,8 +1,26 @@
-# 🤖 DocumentAI
+# 📚 ChemLib AI
 
-## Document Intelligence Pipeline: Chemistry Library RAG + Structured Extraction
+## AI assistant for a university chemistry library: grounded RAG chat + structured extraction
 
-DocumentAI covers two related products built on the same document
+> **Formerly DocumentAI.** The project was renamed to **ChemLib AI** (repo:
+> [`AI-Builders-Iran/ChemLib-AI`](https://github.com/AI-Builders-Iran/ChemLib-AI))
+> when it became a demo for a university chemistry faculty. The original
+> document-extraction feature is still here as a separate demo.
+
+A student asks a scientific question in Persian or English; the answer comes
+from the library's own books, with the book and page it was taken from, and
+never from the model's guesswork.
+
+**Highlights**
+
+- Answers with citations (book + page); says "not enough information" instead of guessing
+- Persian and English, mixed text and scanned PDFs (OCR)
+- **My documents** mode: a user's own file/folder, kept in memory for one session only
+- Library admin panel: add, replace and remove books without touching code
+- Automatic fallback from Gemini to OpenRouter, with a visible notice to the user
+- Compare a concept across two sources, and a REST API for other systems
+
+ChemLib AI covers two related products built on the same document
 loading/processing foundation:
 
 1. **Chemistry Library RAG** — the library's PDFs/DOCX/TXT (including scanned
@@ -116,7 +134,7 @@ Document (PDF/DOCX/TXT)
 ## 📂 Project Structure
 
 ```text
-DocumentAI/
+ChemLib-AI/
 ├── app/
 │   ├── api/api_app.py              # /extract, /ingest (admin), /chat, /compare
 │   └── streamlit_app/
@@ -170,8 +188,8 @@ project only did extraction; the providers themselves are general-purpose
 ## ⚡ Quick Start
 
 ```bash
-git clone <repository-url>
-cd DocumentAI
+git clone https://github.com/AI-Builders-Iran/ChemLib-AI.git
+cd ChemLib-AI
 
 python -m venv .venv
 source .venv/bin/activate      # Windows: .venv\Scripts\activate
@@ -188,7 +206,19 @@ GEMINI_API_KEY=your-key       # required — used by extraction, RAG chat, and O
 OPENROUTER_API_KEY=your-key   # optional — automatic fallback if Gemini fails
 ADMIN_PASSWORD=choose-one     # required for the library admin panel
 POPPLER_PATH=                 # Windows only — see .env.example
+
+# Optional model overrides
+GEMINI_MODEL=                 # default: gemini-3.6-flash
+OPENROUTER_MODEL=             # default: openrouter/auto (use openrouter/free for free models only)
 ```
+
+**LLM fallback.** Gemini is tried first. If it does not answer (quota, outage,
+network), the request is retried automatically on OpenRouter and the chat shows
+which model answered. If neither answers, the user is told so. The fallback
+needs `OPENROUTER_API_KEY` **and** the `langchain-openrouter` package (both are
+in `requirements.txt`). Free-tier Gemini quotas are small and per model, and
+OCR of scanned pages uses the same quota. Restart the app after changing `.env`:
+providers are created once per process.
 
 The app and the API load `.env` automatically. Never commit it (it is already
 in `.gitignore` and `.dockerignore`).
@@ -229,20 +259,20 @@ Open http://localhost:8501.
    follow-ups like "explain more" do not carry over.
 3. Read the answer. Under it, each **source tile** shows the book (colour and
    letters) and the page (number in the corner) the answer came from.
-4. With more than one book in the library, use **جست‌وجو در** to search all
-   books or a single one. **گفتگوی جدید** clears the conversation.
+4. With more than one book in the library, use **جست‌وجو در** (Search in) to search all
+   books or a single one. **گفتگوی جدید** (New chat) clears the conversation.
 5. If nothing relevant exists in the library, the app says so instead of
    guessing.
 
 **Using your own documents (no library needed).** Switch the selector at the
-top of the chat from **کتابخانه** to **سند من**:
+top of the chat from **کتابخانه** (Library) to **سند من** (My documents):
 
-1. Under **بارگذاری فایل یا پوشه**, pick one file, several files, or a folder
+1. Under **بارگذاری فایل یا پوشه** (Upload file or folder), pick one file, several files, or a folder
    compressed as a ZIP (browsers cannot upload a raw folder to Streamlit).
    PDF, DOCX and TXT are read; sub-folders inside the ZIP are included.
-2. Press **بارگذاری موقت** and wait until the files are processed.
+2. Press **بارگذاری موقت** (Temporary upload) and wait until the files are processed.
 3. Ask questions as usual. Answers and source tiles come only from your files.
-4. **پاک‌کردن سندهای من** removes them immediately; closing or refreshing the
+4. **پاک‌کردن سندهای من** (Clear my documents) removes them immediately; closing or refreshing the
    page removes them too.
 
 Your files are kept in memory for your session only: they never reach the
@@ -257,14 +287,14 @@ This mode also works when the library is empty.
 1. Open http://localhost:8501/?mode=admin (users are never shown this address
    or any link to it).
 2. Sign in with `ADMIN_PASSWORD`.
-3. Choose **مدیریت منابع** in the top bar.
-4. Under **افزودن منبع جدید** choose how to add documents:
-   - **فایل یا ZIP**: select one file, several files, or a ZIP of a folder
+3. Choose **مدیریت منابع** (Manage sources) in the top bar.
+4. Under **افزودن منبع جدید** (Add new source) choose how to add documents:
+   - **فایل یا ZIP** (File or ZIP): select one file, several files, or a ZIP of a folder
      (every PDF/DOCX/TXT inside, sub-folders included) and press
-     **افزودن به کتابخانه**.
-   - **پوشه روی این رایانه**: type the path of a folder on the machine running
+     **افزودن به کتابخانه** (Add to library).
+   - **پوشه روی این رایانه** (Folder on this computer): type the path of a folder on the machine running
      the app (for example `D:\Books\Chemistry`), choose whether sub-folders
-     are read, and press **افزودن پوشه**. Best for a big collection already on
+     are read, and press **افزودن پوشه** (Add folder). Best for a big collection already on
      the server.
 
    Each file is read, cleaned, chunked, embedded and stored in the vector
@@ -275,13 +305,13 @@ This mode also works when the library is empty.
    reported as duplicates (only the first is indexed, because a document id
    comes from the file name).
 5. A file whose name is already indexed is skipped. Tick
-   **اگر منبعی با همین نام وجود دارد، جایگزین شود** to replace it: the old
+   **اگر منبعی با همین نام وجود دارد، جایگزین شود** (Replace if a source with the same name exists) to replace it: the old
    version is deleted first, then the new file is indexed.
-6. **منابع ایندکس‌شده** lists every book with its number of chunks; **حذف**
+6. **منابع ایندکس‌شده** (Indexed sources) lists every book with its number of chunks; **حذف** (Delete)
    removes a book (with a confirmation step).
-7. **وضعیت تنظیمات** shows whether the Gemini key, the OpenRouter key and
-   Poppler are configured. Switch back to **گفتگو** to try the chat as a user
-   would, and use **خروج** to sign out.
+7. **وضعیت تنظیمات** (Configuration status) shows whether the Gemini key, the OpenRouter key,
+   Poppler and the OpenRouter package are configured. Switch back to **گفتگو** (Chat) to try the chat as a user
+   would, and use **خروج** (Sign out) to sign out.
 
 Who sees what:
 
@@ -356,16 +386,16 @@ The original demo UI: upload an invoice or contract and get validated JSON.
 ### 4. Docker
 
 ```bash
-docker build -t documentai .
+docker build -t chemlib-ai .
 
 # Library app (leave POPPLER_PATH empty in .env: poppler is installed in the image)
 docker run --rm -p 8501:8501 --env-file .env \
   -v "$(pwd)/vector_database:/app/vector_database" \
-  documentai streamlit run app/streamlit_app/app.py --server.address 0.0.0.0
+  chemlib-ai streamlit run app/streamlit_app/app.py --server.address 0.0.0.0
 
 # REST API (image default)
 docker run --rm -p 8000:8000 --env-file .env \
-  -v "$(pwd)/vector_database:/app/vector_database" documentai
+  -v "$(pwd)/vector_database:/app/vector_database" chemlib-ai
 ```
 
 The volume keeps the vector database across container restarts.
@@ -390,6 +420,13 @@ All tests use mocks (no real API calls, no Poppler/Tesseract/model downloads)
   deliberate trade-off, not an oversight. OCR is only invoked for pages
   where digital text extraction fails, so the API cost stays limited to a
   minority of pages.
+- **Provider fallback**: `RAGService` tries providers in order (Gemini, then
+  OpenRouter). The response reports which backup answered
+  (`fallback_provider`, `fallback_model`, `failed_providers`), and the UI turns
+  that into a notice; if all providers fail, `AllProvidersFailedError` lists them.
+- **Private documents**: the "My documents" store (`SessionVectorStore`) is
+  in-memory and never touches the shared database. Pipelines must test it with
+  `is not None`, not truthiness, because an empty store is still a store.
 - **Embeddings** stay fully local (BGE-M3) — no per-query API cost for
   retrieval, only for LLM generation.
 - **Grounding**: retrieval runs a cheap similarity-threshold check
@@ -435,32 +472,55 @@ All tests use mocks (no real API calls, no Poppler/Tesseract/model downloads)
 
 ---
 
-## 🇮🇷 راهنمای سریع (فارسی)
+## 🇮🇷 Interface Language and Quick Guide
 
-**نصب و اجرا**
+The app's interface is Persian (right-to-left) because its users are Persian-speaking
+students; questions can be written in Persian or English. UI labels are shown in this
+README as they appear on screen, followed by an English translation.
+
+| On screen | Meaning |
+|---|---|
+| **کتابخانه** | Library (chat over the shared books) |
+| **سند من** | My documents (private, session-only files) |
+| **جست‌وجو در** / **همهٔ منابع** | Search in / All sources |
+| **گفتگوی جدید** | New chat |
+| **بارگذاری فایل یا پوشه** / **بارگذاری موقت** | Upload file or folder / Temporary upload |
+| **پاک‌کردن سندهای من** | Clear my documents |
+| **مدیریت منابع** / **گفتگو** | Manage sources / Chat (admin top bar) |
+| **افزودن به کتابخانه** / **افزودن پوشه** | Add to library / Add folder |
+| **منابع ایندکس‌شده** / **حذف** | Indexed sources / Delete |
+| **وضعیت تنظیمات** / **خروج** | Configuration status / Sign out |
+
+**Install and run**
 
 ```bash
 pip install -r requirements.txt
-cp .env.example .env        # سپس GEMINI_API_KEY و ADMIN_PASSWORD را پر کنید
+cp .env.example .env        # then fill in GEMINI_API_KEY and ADMIN_PASSWORD
 streamlit run app/streamlit_app/app.py
 ```
 
-اجرا را همیشه از پوشهٔ اصلی پروژه انجام دهید. بار اول، مدل BGE-M3 دانلود می‌شود و چند دقیقه طول می‌کشد.
+Always run from the project root. The first start downloads the BGE-M3 model and takes a few minutes.
 
-**کاربر (دانشجو / استاد):** آدرس `http://localhost:8501` را باز می‌کند و مستقیم وارد گفتگو می‌شود. سؤال را فارسی یا انگلیسی می‌نویسد و پاسخ را همراه با کتاب و شمارهٔ صفحهٔ منبع می‌بیند. هر سؤال جداگانه جست‌وجو می‌شود، پس نام مفهوم را در خود سؤال بنویسید. این کاربر هیچ بخشی برای افزودن فایل نمی‌بیند.
+**Users (students / professors)** open `http://localhost:8501` and land directly on the
+chat. They ask in Persian or English and get the answer with the source book and page
+number. Each question is searched independently, so write the concept's name in the
+question itself. Users never see any option for adding files to the library.
 
-**مدیر کتابخانه:**
-1. آدرس `http://localhost:8501/?mode=admin` را باز کنید و با `ADMIN_PASSWORD` وارد شوید.
-2. از نوار بالا «مدیریت منابع» را انتخاب کنید.
-3. یک یا چند فایل PDF، DOCX یا TXT را انتخاب و «افزودن به کتابخانه» را بزنید. فایل‌های اسکن‌شده با OCR خوانده می‌شوند و زمان بیشتری می‌برند.
-4. برای جایگزینی فایلی که قبلاً اضافه شده، گزینهٔ «جایگزین شود» را فعال کنید. برای حذف، دکمهٔ «حذف» کنار هر منبع را بزنید.
-5. برای دیدن ظاهر گفتگو از دید کاربر، از نوار بالا «گفتگو» را انتخاب کنید.
+**Library admin**
 
-**افزودن پوشه:** در «مدیریت منابع» دو راه هست: تب «فایل یا ZIP» (چند فایل یا پوشه‌ای که ZIP شده) و تب «پوشه روی این رایانه» (مسیر پوشه روی همان دستگاهی که برنامه اجرا می‌شود). همهٔ PDF، DOCX و TXTهای داخل پوشه (با زیرپوشه‌ها) اضافه می‌شود و برای هر فایل نتیجهٔ جداگانه نشان داده می‌شود.
+1. Open `http://localhost:8501/?mode=admin` and sign in with `ADMIN_PASSWORD`.
+2. Choose **مدیریت منابع** (Manage sources) in the top bar.
+3. Select one or more PDF, DOCX or TXT files and press **افزودن به کتابخانه** (Add to library). Scanned files are read with OCR and take longer.
+4. To replace a file that was already added, tick the replace option. To remove one, press **حذف** (Delete) next to it.
+5. To see the chat as a user would, choose **گفتگو** (Chat) in the top bar.
 
-**سند من (بدون کتابخانه):** بالای صفحهٔ گفتگو از «کتابخانه» به «سند من» بروید، یک فایل، چند فایل یا یک پوشهٔ ZIP‌شده را بارگذاری کنید و سؤال بپرسید. این فایل‌ها فقط در حافظهٔ همین صفحه می‌مانند، در پایگاه برداری کتابخانه ذخیره نمی‌شوند و با «پاک‌کردن سندهای من» یا بستن و تازه‌کردن صفحه از بین می‌روند. توجه: برای نوشتن پاسخ، بخش‌های مرتبط با سؤال به سرویس مدل زبانی (Gemini) فرستاده می‌شود.
+**Adding a folder:** under Manage sources there are two ways: the **فایل یا ZIP** (File or ZIP) tab for several files or a zipped folder, and the **پوشه روی این رایانه** (Folder on this computer) tab for a path on the machine running the app. Every PDF, DOCX and TXT inside (sub-folders included) is added, with a separate result per file.
 
-**نکته:** اگر `ADMIN_PASSWORD` تنظیم نشده باشد، ورود مدیر غیرفعال است.
+**My documents (no library needed):** at the top of the chat switch from **کتابخانه** (Library) to **سند من** (My documents), upload a file, several files, or a zipped folder, and ask questions. These files stay in the memory of that page only: they are not stored in the library's vector database and disappear with **پاک‌کردن سندهای من** (Clear my documents) or when the page is closed or refreshed. Note: to write an answer, the passages relevant to the question are sent to the language-model service (Gemini, or OpenRouter as fallback).
+
+**Fallback model:** if Gemini does not respond (for example the free quota is used up), the app automatically uses OpenRouter and shows in the chat which model answered. This needs `OPENROUTER_API_KEY` in `.env`; restart the app after changing `.env`.
+
+**Note:** if `ADMIN_PASSWORD` is not set, admin sign-in is disabled.
 
 ---
 
