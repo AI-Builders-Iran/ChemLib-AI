@@ -1,0 +1,327 @@
+[
+  {
+    "id": "q01",
+    "type": "direct",
+    "document": "general_chemistry_catalysis_aligned.txt",
+    "question": "اصل لوشاتلیه چه می‌گوید؟",
+    "ground_truth": "اگر شرایط یک سامانه در حال تعادل، مانند غلظت، فشار یا دما، تغییر کند، سامانه در جهتی جابه‌جا می‌شود که اثر این تغییر را کاهش دهد.",
+    "evidence": "بخش «تعادل شیمیایی»"
+  },
+  {
+    "id": "q02",
+    "type": "direct",
+    "document": "general_chemistry_catalysis_aligned.txt",
+    "question": "واکنش ساخت آمونیاک به روش هابر چیست و در هر طرف آن چند مول گاز وجود دارد؟",
+    "ground_truth": "واکنش N₂(g) + 3H₂(g) ⇌ 2NH₃(g) است. در سمت واکنش‌دهنده‌ها چهار مول گاز و در سمت محصولات دو مول گاز وجود دارد.",
+    "evidence": "بخش «ساخت آمونیاک به روش هابر»"
+  },
+  {
+    "id": "q03",
+    "type": "multi_step",
+    "document": "general_chemistry_catalysis_aligned.txt",
+    "question": "چرا افزایش فشار به تشکیل آمونیاک در فرایند هابر کمک می‌کند؟",
+    "ground_truth": "چون سمت واکنش‌دهنده‌ها چهار مول گاز و سمت محصولات دو مول گاز دارد؛ طبق اصل لوشاتلیه افزایش فشار تعادل را به سمت تشکیل آمونیاک، یعنی سمتی با مول گاز کمتر، جابه‌جا می‌کند.",
+    "evidence": "بخش «ساخت آمونیاک به روش هابر»"
+  },
+  {
+    "id": "q04",
+    "type": "multi_step",
+    "document": "general_chemistry_catalysis_aligned.txt",
+    "question": "افزایش دما چه اثری بر تعادل تشکیل آمونیاک دارد و دلیلش چیست؟",
+    "ground_truth": "واکنش تشکیل آمونیاک گرماده است؛ بنابراین افزایش دما تعادل را به سمت واکنش‌دهنده‌ها جابه‌جا می‌کند و کاهش دما از نظر تعادل تشکیل آمونیاک را مطلوب‌تر می‌کند.",
+    "evidence": "بخش «ساخت آمونیاک به روش هابر»"
+  },
+  {
+    "id": "q05",
+    "type": "multi_step",
+    "document": "general_chemistry_catalysis_aligned.txt",
+    "question": "آیا کاتالیزگر موقعیت تعادل را تغییر می‌دهد؟ کاتالیزگر دقیقاً چه اثری دارد؟",
+    "ground_truth": "خیر. کاتالیزگر با کاهش انرژی فعال‌سازی سرعت رسیدن به تعادل را افزایش می‌دهد، اما موقعیت تعادل و نسبت نهایی مواد در حالت تعادل را تغییر نمی‌دهد.",
+    "evidence": "بخش‌های «نقش کاتالیزگر» و «ساخت آمونیاک و کاتالیز»"
+  },
+  {
+    "id": "q06",
+    "type": "direct",
+    "document": "general_chemistry_catalysis_aligned.txt",
+    "question": "کاتالیز ناهمگن چیست و چرا سطح کاتالیزگر در آن اهمیت دارد؟",
+    "ground_truth": "در کاتالیز ناهمگن کاتالیزگر و مواد واکنش‌دهنده در فازهای متفاوت‌اند، مثلاً یک جامد برای واکنش مواد گازی. سطح کاتالیزگر مهم است چون مولکول‌های واکنش‌دهنده روی آن جذب می‌شوند و برهم‌کنش با سطح انجام واکنش را آسان‌تر می‌کند.",
+    "evidence": "بخش «کاتالیز ناهمگن»"
+  },
+  {
+    "id": "q07",
+    "type": "direct",
+    "document": "molecules-31-01213-v2.pdf",
+    "question": "What share of the world's GDP is influenced by catalysis, and what share of catalytic processes relate to heterogeneous catalysis?",
+    "ground_truth": "Approximately 35% of the world's GDP is influenced by catalysis, and as much as 80% of catalytic processes relate to heterogeneous catalysis.",
+    "evidence": "pdf p1"
+  },
+  {
+    "id": "q08",
+    "type": "direct",
+    "document": "molecules-31-01213-v2.pdf",
+    "question": "Who carried out the first large-scale sulfuric acid manufacture in 1736, and how was it done?",
+    "ground_truth": "Joshua Ward, in 1736. He burned sulfur with NaNO3 to produce H2SO4 in 60-gallon glass globes.",
+    "evidence": "pdf p1"
+  },
+  {
+    "id": "q09",
+    "type": "multi_step",
+    "document": "molecules-31-01213-v2.pdf",
+    "question": "How many years after Ward's venture did Roebuck industrialize sulfuric acid production, and what did his process use and achieve?",
+    "ground_truth": "Ten years later (1746 versus 1736). Roebuck burned sulfur with KNO3 in lead-lined chambers; the process remained the standard for almost two centuries, with a purity of 62% and a conversion of 75%.",
+    "evidence": "pdf p1"
+  },
+  {
+    "id": "q10",
+    "type": "direct",
+    "document": "molecules-31-01213-v2.pdf",
+    "question": "What was the Deacon process of 1868?",
+    "ground_truth": "Henry Deacon invented a process in 1868 for Cl2 production from the oxidation of HCl over CuCl2 at 350-500 °C; the Cl2 was used to make bleaching powder while HCl emission was curtailed.",
+    "evidence": "pdf p1"
+  },
+  {
+    "id": "q11",
+    "type": "direct",
+    "document": "molecules-31-01213-v2.pdf",
+    "question": "Under what conditions does the Sabatier process operate, and where is it used today?",
+    "ground_truth": "It hydrogenates CO2 to CH4 and water over a nickel catalyst at 300-400 °C and 30 bar, and is currently used to produce water onboard the International Space Station.",
+    "evidence": "pdf p1"
+  },
+  {
+    "id": "q12",
+    "type": "multi_step",
+    "document": "molecules-31-01213-v2.pdf",
+    "question": "Which Nobel prizes does the editorial connect to ammonia synthesis, and who received them?",
+    "ground_truth": "The Haber-Bosch process (developed in 1910 with iron-based catalysts) made NH3 from N2 and H2. Haber won the 1918 Nobel Prize in chemistry for it, and Carl Bosch shared the 1931 Nobel Prize in chemistry with Friedrich Bergius for his role in this high-pressure process.",
+    "evidence": "pdf p1-2"
+  },
+  {
+    "id": "q13",
+    "type": "direct",
+    "document": "molecules-31-01213-v2.pdf",
+    "question": "When were Ziegler-Natta catalysts discovered, what were they used for, and which Nobel Prize did they bring?",
+    "ground_truth": "They were discovered in 1953-1954 for the low-pressure polymerization of ethylene and propylene, have been used commercially for polyolefins since 1956, and Karl Ziegler and Giulio Natta were jointly awarded the 1963 Nobel Prize in chemistry.",
+    "evidence": "pdf p2"
+  },
+  {
+    "id": "q14",
+    "type": "direct",
+    "document": "molecules-31-01213-v2.pdf",
+    "question": "What do catalytic converters in automobiles use as catalysts and what do they convert?",
+    "ground_truth": "They use supported precious metals such as platinum, palladium and rhodium to convert toxic engine gases such as CO and NOx into less harmful CO2, N2 and water vapor.",
+    "evidence": "pdf p2"
+  },
+  {
+    "id": "q15",
+    "type": "multi_step",
+    "document": "molecules-31-01213-v2.pdf",
+    "question": "What did Döbereiner observe in 1823 and who coined the term 'catalysis' in 1835?",
+    "ground_truth": "In 1823 Johann Döbereiner observed that a platinum sponge made a jet of H2 ignite spontaneously in air at room temperature without being consumed (he built a lighter on this principle). The term 'catalysis' was coined in 1835 by Jacob Berzelius.",
+    "evidence": "pdf p2"
+  },
+  {
+    "id": "q16",
+    "type": "multi_step",
+    "document": "molecules-31-01213-v2.pdf",
+    "question": "What are the Sabatier principle and Langmuir's 1916 contribution?",
+    "ground_truth": "In 1911 Sabatier proposed that an ideal catalyst binds reactants with intermediate strength (neither too strong nor too weak). In 1916 Irving Langmuir introduced the theory of chemisorption, modelling monolayer adsorption of gas molecules on solid surfaces; he received the 1932 Nobel Prize in chemistry.",
+    "evidence": "pdf p2"
+  },
+  {
+    "id": "q17",
+    "type": "direct",
+    "document": "molecules-31-01213-v2.pdf",
+    "question": "How many Nobel Prizes in chemistry between 1901 and 2025 were related to heterogeneous catalysis?",
+    "ground_truth": "17 prizes, accounting for 15% of the 117 Nobel Prizes in chemistry in that period.",
+    "evidence": "pdf p3"
+  },
+  {
+    "id": "q18",
+    "type": "direct",
+    "document": "molecules-31-01213-v2.pdf",
+    "question": "What is the title of the Special Issue discussed in the editorial, how many contributions does it have, and how many deal with nanomaterials?",
+    "ground_truth": "'Research on Heterogeneous Catalysis—2nd Edition' with 21 contributions, of which 11 are concerned with heterogeneous catalysis by nanomaterials.",
+    "evidence": "pdf p3"
+  },
+  {
+    "id": "q19",
+    "type": "multi_step",
+    "document": "molecules-31-01213-v2.pdf",
+    "question": "What results did Sharma et al. and Hamieh et al. report?",
+    "ground_truth": "Sharma et al. oxidized dimethyl sulfide with WO3/V2O5/TiO2 at a low temperature of 250 °C even at 1.6 vol % in air (the active component is V on anatase TiO2, and WO3 stabilizes the anatase structure). Hamieh et al. developed the photo-Fenton hybrid catalyst FeCr-SBA-15/AC, which degraded methyl orange with 97% efficiency, outperforming FeCr-SBA-15 by 20%.",
+    "evidence": "pdf p3"
+  },
+  {
+    "id": "q20",
+    "type": "direct",
+    "document": "آکریلونیتریل+_208140.pdf",
+    "question": "What is the plant capacity in the acrylonitrile via ammoxidation of propane review, and at what stream factor?",
+    "ground_truth": "400 million lb/yr (181,000 t/yr) of acrylonitrile at a stream factor of 0.9.",
+    "evidence": "pdf p1, Process Description"
+  },
+  {
+    "id": "q21",
+    "type": "direct",
+    "document": "آکریلونیتریل+_208140.pdf",
+    "question": "Which three sections does the acrylonitrile process consist of?",
+    "ground_truth": "Section 100 - Reaction; Section 200 - Acrylonitrile Recovery and Purification; Section 300 - HCN Recovery and Purification.",
+    "evidence": "pdf p1"
+  },
+  {
+    "id": "q22",
+    "type": "table",
+    "document": "آکریلونیتریل+_208140.pdf",
+    "question": "According to Table 2 (reactor design parameters), what are the reactor temperature, the pressures and the feed composition?",
+    "ground_truth": "Temperature 430 °C (806 °F); pressure out 30 psia and pressure in 40 psia; feed composition 1.0 C3H8 : 1.18 NH3 : 13.8 air (mol ratios). WHSV is 0.032 lb ACN/lb cat/h.",
+    "evidence": "pdf p3 (printed page 6), Table 2"
+  },
+  {
+    "id": "q23",
+    "type": "table",
+    "document": "آکریلونیتریل+_208140.pdf",
+    "question": "Among the ten controlling reactions in Table 2, which has the highest fractional conversion and which the second highest?",
+    "ground_truth": "Reaction (1), propane + NH3 + 2O2 -> acrylonitrile + 4H2O, has the highest fractional conversion (0.5237). The second highest is reaction (9), the complete combustion C3H8 + 5O2 -> 3CO2 + 4H2O (0.1909).",
+    "evidence": "pdf p3, Table 2"
+  },
+  {
+    "id": "q24",
+    "type": "table",
+    "document": "آکریلونیتریل+_208140.pdf",
+    "question": "In Table 1 (experimental results), what were the conversion, selectivity and yield after 40 days when no tellurium acid or heptamolybdate was added?",
+    "ground_truth": "Conversion 87.0%, selectivity 60.2% and yield 52.4%.",
+    "evidence": "pdf p1, Table 1",
+    "review_note": "Compare with the 2-hour row (86.5 / 60.5 / 52.3) if the answer mixes rows."
+  },
+  {
+    "id": "q25",
+    "type": "table",
+    "document": "آکریلونیتریل+_208140.pdf",
+    "question": "According to Table 4 (major equipment), what are the size and material of the fluid-bed reactors R-101A-C, and how many trains are there?",
+    "ground_truth": "Three trains of fluid-bed reactors, each 30 ft diameter by 40 ft, carbon steel; they generate 645 MMBtu/h as 600 psig steam.",
+    "evidence": "pdf p13 (printed page 16), Table 4"
+  },
+  {
+    "id": "q26",
+    "type": "multi_step",
+    "document": "آکریلونیتریل+_208140.pdf",
+    "question": "How is ammonia removed from the reactor effluent?",
+    "ground_truth": "The partially cooled reactor effluent (about 288 °C / 550 °F) is cooled further to 227 °C (440 °F) in an air cooler and goes to tower C-101, where it flows countercurrent to an ammonium sulfate solution circulated through a cooler; diluted sulfuric acid is added to maintain acidity and absorb the ammonia.",
+    "evidence": "pdf p1-2, 'Ammonia Separation from Reactor Effluent'",
+    "review_note": "Temperatures read from the scan; verify against the original."
+  },
+  {
+    "id": "q27",
+    "type": "direct",
+    "document": "ایزوبوتیل بنزن.pdf",
+    "question": "What reaction and catalyst does PEP Review 98-8 use to produce isobutylbenzene?",
+    "ground_truth": "Toluene reacts with propylene in the presence of a sodium/potassium alloy (NaK2) catalyst; the reaction is carried out batchwise and gives a mixture of isobutylbenzene (IBB) and n-butylbenzene (NBB) with IBB predominating.",
+    "evidence": "pdf p1, Abstract",
+    "review_note": "The scan's abstract says 'isobutylene' in the first sentence; the title and the rest say isobutylbenzene."
+  },
+  {
+    "id": "q28",
+    "type": "direct",
+    "document": "ایزوبوتیل بنزن.pdf",
+    "question": "What are the base-case production volume and the estimated capital cost, production cost and product value for the isobutylbenzene process?",
+    "ground_truth": "Base case 3.61 MM lb/yr IBB (4 MM lb/yr mixed IBB/NBB), enough for about 5 MM lb/yr ibuprofen. Estimated capital cost $8.6 MM, production cost $1.14/lb and product value $1.73/lb (25% ROI).",
+    "evidence": "pdf p1, Abstract"
+  },
+  {
+    "id": "q29",
+    "type": "multi_step",
+    "document": "ایزوبوتیل بنزن.pdf",
+    "question": "How does catalyst consumption under the subject patent's conditions compare with current commercial practice?",
+    "ground_truth": "Current commercial practice consumes catalyst on the order of 0.1 lb/lb IBB. The patent's operating conditions produce no visible tarry materials and allow at least 10 consecutive batch runs before the catalyst phase has to be discarded, with catalyst consumption below 0.1 lb/lb IBB.",
+    "evidence": "pdf p1, Abstract"
+  },
+  {
+    "id": "q30",
+    "type": "direct",
+    "document": "تولید اتیلن_دی_آمین از آمین_دار کردن مونو_اتانول_آمین..pdf",
+    "question": "What catalyst does US Patent 5952529 describe and how does its EDA selectivity compare with current practice?",
+    "ground_truth": "A nickel-cobalt-copper-rhenium-boron catalyst supported on silica. Its EDA selectivity per reactor pass is above 90 mol% based on MEA, compared with about 70 mol% in current practice, at similar operating conditions and MEA conversion of about 35%.",
+    "evidence": "pdf p1, Abstract"
+  },
+  {
+    "id": "q31",
+    "type": "direct",
+    "document": "تولید اتیلن_دی_آمین از آمین_دار کردن مونو_اتانول_آمین..pdf",
+    "question": "What is the design basis and what are the capital investment, production cost and product value for the EDA plant?",
+    "ground_truth": "A 103 million lb/yr (45,400 t/yr) EDA plant at a 0.91 stream factor on the U.S. Gulf Coast. Total capital investment is about $120 million ($70 million battery limits, $50 million offsites); production cost is $0.94/lb; at a 25% pretax ROI the product value is $1.24/lb, versus a list price of $1.39/lb for EDA (99%).",
+    "evidence": "pdf p1, Abstract"
+  },
+  {
+    "id": "q32",
+    "type": "multi_step",
+    "document": "تولید اتیلن_دی_آمین از آمین_دار کردن مونو_اتانول_آمین..pdf",
+    "question": "What does the review say about using ethylene oxide as an alternative feedstock?",
+    "ground_truth": "Using ethylene oxide (EO) would be within the scope of the patent claims. Production costs would drop by about 21 cents/lb if a simple 1:1 substitution for the MEA feed could be made while doubling the NH3 feed, assuming 100% single-pass conversion of EO and steady-state MEA and NH3 recycle streams similar to the MEA-based process.",
+    "evidence": "pdf p1, Conclusion"
+  },
+  {
+    "id": "q33",
+    "type": "direct",
+    "document": "تولید اتیلن_دی_آمین از آمین_دار کردن مونو_اتانول_آمین..pdf",
+    "question": "What is the main potential advantage of this technology according to the conclusion?",
+    "ground_truth": "It can produce EDA competitively; its major advantage is the flexibility of extending the product mix of ethyleneamines from almost all EDA to the higher polyamines, and recycling EDA to the reactors would likely increase production of higher polyamines.",
+    "evidence": "pdf p1, Conclusion"
+  },
+  {
+    "id": "q34",
+    "type": "table",
+    "document": "ونیل استات .pdf",
+    "question": "What process and capacity does Table 9.5 cover?",
+    "ground_truth": "Table 9.5 is the major process equipment and utilities summary for the vinyl ester of Versatic acid from acetylene, for a capacity of 20 million lb/yr at a 0.9 stream factor.",
+    "evidence": "pdf p1",
+    "review_note": "The file name says 'vinyl acetate' but the page covers the vinyl ester of Versatic acid; the header line reads 'Vinyl Acetate, Supp. A, June 1972'."
+  },
+  {
+    "id": "q35",
+    "type": "table",
+    "document": "ونیل استات .pdf",
+    "question": "What are the sizes and materials of construction of reactors R-1 and R-2?",
+    "ground_truth": "R-1 (reactor) is 2,500 gal and R-2 (pretreater) is 720 gal; both are 316 stainless steel clad.",
+    "evidence": "pdf p1"
+  },
+  {
+    "id": "q36",
+    "type": "table",
+    "document": "ونیل استات .pdf",
+    "question": "Describe the columns C-1 and C-2 in the equipment summary.",
+    "ground_truth": "C-1, the light-ends column, is 15 ft high and 2.5 ft diameter with a 316 ss shell and 316 ss trays; C-2, the ester column, is 60 ft high and 5.0 ft diameter with a 316 ss clad shell and 316 ss trays. Both have 5 sieve trays, with 12 in. and 18 in. spacing respectively.",
+    "evidence": "pdf p1",
+    "review_note": "Typewritten scan: the tray remarks (5 sieve trays, 12 in. / 18 in. spacing) were read visually; verify."
+  },
+  {
+    "id": "q37",
+    "type": "table",
+    "document": "ونیل استات .pdf",
+    "question": "What are the average utility consumptions at the battery limits?",
+    "ground_truth": "Cooling water 300 gpm, electricity 39 kW and steam at 300 psi 5 (1,000 lb/hr).",
+    "evidence": "pdf p1"
+  },
+  {
+    "id": "q38",
+    "type": "comparison",
+    "document": null,
+    "question": "از نظر هزینه سرمایه‌ای، هزینه تولید و ارزش محصول مقایسه کن: ایزوبوتیل بنزن و تولید اتیلن_دی_آمین از آمین_دار کردن مونو_اتانول_آمین",
+    "ground_truth": "ایزوبوتیل‌بنزن: ظرفیت پایه 3.61 میلیون پوند در سال، سرمایه‌گذاری حدود 8.6 میلیون دلار، هزینه تولید 1.14 دلار بر پوند و ارزش محصول 1.73 دلار بر پوند (بازده 25٪). اتیلن‌دی‌آمین: ظرفیت 103 میلیون پوند در سال، سرمایه‌گذاری کل حدود 120 میلیون دلار، هزینه تولید 0.94 دلار بر پوند و ارزش محصول 1.24 دلار بر پوند (بازده پیش از مالیات 25٪). یعنی طرح اتیلن‌دی‌آمین بسیار بزرگ‌تر و پرسرمایه‌تر است ولی هزینه تولید و ارزش محصول هر پوند آن کمتر است.",
+    "evidence": "doc04 pdf p1 + doc05 pdf p1"
+  },
+  {
+    "id": "q39",
+    "type": "comparison",
+    "document": null,
+    "question": "Compare these sources: ایزوبوتیل بنزن and آکریلونیتریل+_208140",
+    "ground_truth": "The isobutylbenzene review alkylates toluene with propylene over a sodium/potassium (NaK2) catalyst in batch operation at a base case of 3.61 MM lb/yr IBB. The acrylonitrile review ammoxidates propane with ammonia and air in fluidized-bed reactors (three trains) for a 400 million lb/yr (181,000 t/yr) plant.",
+    "evidence": "doc04 pdf p1 + doc03 pdf p1, p3, p13"
+  },
+  {
+    "id": "q40",
+    "type": "comparison",
+    "document": null,
+    "question": "Compare these sources: molecules-31-01213-v2 and general_chemistry_catalysis_aligned",
+    "ground_truth": "Both deal with catalysis and ammonia synthesis. The Molecules editorial gives a historical overview of heterogeneous catalysis (e.g. Haber-Bosch ammonia synthesis with iron-based catalysts developed in 1910, the Sabatier principle, Langmuir adsorption), while the Persian chemistry text explains chemical equilibrium and Le Chatelier's principle using the Haber ammonia synthesis and states that a catalyst speeds up reaching equilibrium without changing its position, with heterogeneous catalysis acting through adsorption on the catalyst surface.",
+    "evidence": "doc02 pdf p1-2 + doc01"
+  }
+]

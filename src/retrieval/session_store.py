@@ -14,7 +14,7 @@ import math
 
 import numpy as np
 
-from rag.schemas import ChunkResult, IndexedDocument
+from rag.schemas import ChunkResult, IndexedDocument, chunk_order
 
 # A private session is small by design; this protects the server's memory and CPU.
 MAX_CHUNKS = 5000
@@ -112,6 +112,13 @@ class SessionVectorStore:
                 )
             entry.chunks += 1
         return sorted(found.values(), key=lambda d: d.source_file.lower())
+
+    def get_document_chunks(self, document_id: str) -> list[ChunkResult]:
+        """Every kept chunk of ``document_id`` in reading order (no embedding involved)."""
+        return sorted(
+            (chunk.model_copy() for chunk in self._chunks if chunk.document_id == document_id),
+            key=chunk_order,
+        )
 
     def has_document(self, document_id: str) -> bool:
         return any(chunk.document_id == document_id for chunk in self._chunks)

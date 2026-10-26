@@ -12,8 +12,10 @@ import time
 
 import streamlit as st
 
-from . import auth, components, outcomes, services
-from .helpers import to_fa_digits
+from app import auth
+
+from . import components, ocr_choice, outcomes, services
+from app.text_helpers import to_fa_digits
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +37,7 @@ def is_admin() -> bool:
 # ---------------------------------------------------------------------------
 
 def render_login() -> None:
-    st.markdown(components.section_title("ورود مدیر کتابخانه"), unsafe_allow_html=True)
+    st.markdown(components.section_title("🔑 ورود مدیر کتابخانه"), unsafe_allow_html=True)
 
     if not auth.admin_configured():
         st.warning(
@@ -69,9 +71,10 @@ def render_nav() -> str:
             horizontal=True,
             label_visibility="collapsed",
             key=VIEW_KEY,
+            format_func=lambda v: f"💬 {v}" if v == VIEW_CHAT else f"📚 {v}",
         )
     with exit_col:
-        if st.button("خروج", use_container_width=True):
+        if st.button("خروج ⟵", use_container_width=True):
             for key in (ADMIN_KEY, VIEW_KEY, CONFIRM_DELETE_KEY, OUTCOMES_KEY):
                 st.session_state.pop(key, None)
             st.query_params.clear()
@@ -113,7 +116,7 @@ def render_library() -> None:
 
 
 def _render_upload() -> None:
-    st.markdown(components.section_title("افزودن منبع جدید"), unsafe_allow_html=True)
+    st.markdown(components.section_title("🧪 افزودن منبع جدید"), unsafe_allow_html=True)
 
     files_tab, folder_tab = st.tabs(["فایل یا ZIP", "پوشه روی این رایانه"])
     with files_tab:
@@ -145,6 +148,7 @@ def _render_files_form() -> None:
             help="نسخهٔ قبلی حذف و فایل تازه دوباره ایندکس می‌شود.",
             key="dx_overwrite_files",
         )
+        ocr_mode = ocr_choice.render("dx_ocr_files")
         submitted = st.form_submit_button("افزودن به کتابخانه", type="primary", use_container_width=True)
 
     if not submitted:
@@ -166,9 +170,11 @@ def _render_files_form() -> None:
             def report(i: int, total: int, name: str, archive_name: str = uploaded.name) -> None:
                 note.info(f"«{archive_name}»: پردازش «{name}» ({to_fa_digits(i)} از {to_fa_digits(total)})…")
 
-            results.extend(services.ingest_zip(uploaded.name, uploaded.getvalue(), overwrite, on_progress=report))
+            results.extend(services.ingest_zip(
+                    uploaded.name, uploaded.getvalue(), overwrite, on_progress=report, ocr_mode=ocr_mode
+                ))
         else:
-            results.append(services.ingest_upload(uploaded.name, uploaded.getvalue(), overwrite))
+            results.append(services.ingest_upload(uploaded.name, uploaded.getvalue(), overwrite, ocr_mode=ocr_mode))
         progress.progress(index / len(files))
 
     _finish(results)
@@ -183,6 +189,7 @@ def _render_folder_form() -> None:
         path_text = st.text_input("مسیر پوشه", placeholder=r"D:\Books\Chemistry", key="dx_folder_path")
         recursive = st.checkbox("زیرپوشه‌ها هم خوانده شود", value=True, key="dx_folder_recursive")
         overwrite = st.checkbox("منبع هم‌نام جایگزین شود", key="dx_overwrite_folder")
+        ocr_mode = ocr_choice.render("dx_ocr_folder")
         submitted = st.form_submit_button("افزودن پوشه", type="primary", use_container_width=True)
 
     if not submitted:
@@ -199,7 +206,7 @@ def _render_folder_form() -> None:
         progress.progress((index - 1) / total)
 
     try:
-        results = services.ingest_folder(path_text, recursive, overwrite, on_progress=report)
+        results = services.ingest_folder(path_text, recursive, overwrite, on_progress=report, ocr_mode=ocr_mode)
     except NotADirectoryError:
         progress.empty()
         note.empty()
@@ -229,7 +236,7 @@ def _show_last_outcomes() -> None:
 
 
 def _render_document_list(documents) -> None:
-    st.markdown(components.section_title("منابع ایندکس‌شده"), unsafe_allow_html=True)
+    st.markdown(components.section_title("📚 منابع ایندکس‌شده"), unsafe_allow_html=True)
 
     if not documents:
         st.info("هنوز فایلی اضافه نشده است. از بخش بالا اولین منبع را اضافه کنید.")
@@ -239,9 +246,9 @@ def _render_document_list(documents) -> None:
         with st.container(border=True):
             tile_col, info_col, action_col = st.columns([1, 6, 2], vertical_alignment="center")
             with tile_col:
-                st.markdown(components.mini_tile(document.source_file), unsafe_allow_html=True)
+                st.markdown(components.tile(document.source_file), unsafe_allow_html=True)
             with info_col:
-                st.markdown(components.doc_line(document.source_file, document.chunks), unsafe_allow_html=True)
+                st.markdown(components.doc_card(document.source_file, document.chunks), unsafe_allow_html=True)
 
             if st.session_state.get(CONFIRM_DELETE_KEY) == document.document_id:
                 st.warning(f"«{document.source_file}» و همهٔ بخش‌های آن از کتابخانه حذف می‌شود. ادامه می‌دهید؟")
@@ -259,5 +266,5 @@ def _render_document_list(documents) -> None:
 
 
 def _render_status() -> None:
-    st.markdown(components.section_title("وضعیت تنظیمات"), unsafe_allow_html=True)
+    st.markdown(components.section_title("⚙️ وضعیت تنظیمات"), unsafe_allow_html=True)
     st.markdown(components.status_pills(services.system_checks()), unsafe_allow_html=True)

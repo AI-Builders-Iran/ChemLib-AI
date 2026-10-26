@@ -145,3 +145,118 @@ def test_prompt_contains_question_and_context():
 
     assert "What is X?" in prompt
     assert "chunk_id=c1" in prompt
+
+def test_relevant_chunk_is_sent_to_llm():
+    chunks = [
+        chunk("c1", page=7, score=0.9),
+        chunk("c2", page=12, score=0.3),
+    ]
+    provider = FakeProvider(
+        RAGAnswer(
+            answer="The reaction temperature is 250°C.",
+            grounded=True,
+            citations=["c1"],
+        )
+    )
+
+    svc, _ = service(chunks, provider)
+
+    response = svc.answer_question(
+        "دمای واکنش در فرآیند تجاری فعلی چقدر است؟"
+    )
+
+    assert response.answer == "The reaction temperature is 250°C."
+    assert response.grounded is True
+    assert [source.chunk_id for source in response.sources] == ["c1"]
+
+    assert provider.prompts
+    assert "دمای واکنش در فرآیند تجاری فعلی چقدر است؟" in provider.prompts[0]
+    assert "chunk_id=c1" in provider.prompts[0]
+
+def test_irrelevant_retrieved_context_results_in_no_grounded_answer():
+    chunks = [
+        chunk("c1", page=2, score=0.2),
+        chunk("c2", page=5, score=0.3),
+    ]
+    provider = FakeProvider(
+        RAGAnswer(
+            answer=NO_ANSWER_MESSAGE_FA,
+            grounded=False,
+            citations=[],
+        )
+    )
+
+    svc, _ = service(chunks, provider)
+
+    response = svc.answer_question(
+        "دمای واکنش در فرآیند تجاری فعلی چقدر است؟"
+    )
+
+    assert response.grounded is False
+    assert response.sources == []
+    assert provider.prompts == []
+
+
+def test_irrelevant_retrieved_context_results_in_no_grounded_answer():
+    chunks = [
+        chunk(
+            "c1",
+            page=2,
+            score=SIMILARITY_THRESHOLD - 0.01,
+        ),
+        chunk(
+            "c2",
+            page=5,
+            score=SIMILARITY_THRESHOLD - 0.02,
+        ),
+    ]
+
+    provider = FakeProvider(
+        RAGAnswer(
+            answer=NO_ANSWER_MESSAGE_FA,
+            grounded=False,
+            citations=[],
+        )
+    )
+
+    svc, _ = service(chunks, provider)
+
+    response = svc.answer_question(
+        "دمای واکنش در فرآیند تجاری فعلی چقدر است؟"
+    )
+
+    assert response.grounded is False
+    assert response.sources == []
+    assert provider.prompts == []
+
+
+def test_threshold():
+    print("SIMILARITY_THRESHOLD =", SIMILARITY_THRESHOLD)
+    assert True
+
+def test_llm_can_declare_context_insufficient():
+    chunks = [
+        chunk("c1", page=2, score=0.9),
+        chunk("c2", page=5, score=0.8),
+    ]
+
+    provider = FakeProvider(
+        RAGAnswer(
+            answer=NO_ANSWER_MESSAGE_FA,
+            grounded=False,
+            citations=[],
+        )
+    )
+
+    svc, _ = service(chunks, provider)
+
+    response = svc.answer_question(
+        "دمای واکنش در فرآیند تجاری فعلی چقدر است؟"
+    )
+
+    assert response.grounded is False
+    assert response.answer == NO_ANSWER_MESSAGE_FA
+    assert response.sources == []
+
+    # Retrieval passed the threshold, so the LLM should be called.
+    assert len(provider.prompts) == 1

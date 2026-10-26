@@ -1,10 +1,21 @@
+"""Shared test setup: the project root on sys.path, and a clean summary cache per test."""
+
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
-UI_DIR = ROOT / "app" / "streamlit_app"
+import pytest
 
-# `src`, `rag` live at the project root; `docai_ui` next to the Streamlit entry point.
-for path in (ROOT, UI_DIR):
-    if str(path) not in sys.path:
-        sys.path.insert(0, str(path))
+pytest_plugins = ["nicegui.testing.user_plugin"]
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from rag import summarizer  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _clean_summary_cache():
+    summarizer.clear_cache()
+    yield
+    summarizer.clear_cache()

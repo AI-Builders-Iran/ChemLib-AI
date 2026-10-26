@@ -15,7 +15,24 @@ loading/processing foundation:
      documents in the vector database, one file, many files, a ZIP or a whole
      folder at a time.
 2. **Structured Extraction** — turn an invoice/contract/general document into
-   validated JSON (the original feature, still available as a separate demo).
+   validated JSON. The pipeline (`src/extraction/`, `src/pipeline/`) is still
+   there and still reachable via `POST /api/v1/extract`; it currently has no
+   dedicated UI (the old Streamlit demo for it was removed — see
+   "Project history" below).
+
+### UI
+
+**NiceGUI app** (`app/nicegui_app/`) — run with `python -m app.nicegui_app.main`.
+Dashboard, AI Chat (library + private docs, Compare Sources, citations),
+Documents, Settings. Admin actions are gated by `ADMIN_PASSWORD`. It calls
+the backend directly (`rag/`, `src/`) — no HTTP hop through
+`app/api/api_app.py`, which is a separate FastAPI surface for external API
+consumers and doesn't even cover document management.
+
+> **Project history:** this app originally shipped with a Streamlit UI
+> (`app/streamlit_app/`). It has been replaced by the NiceGUI app above and
+> removed from the repository; its structured-extraction demo page went with
+> it (the underlying extraction feature itself did not — see point 2 above).
 
 ---
 
@@ -25,18 +42,19 @@ loading/processing foundation:
 
 ```text
 Ingest (library admin):
-  Document → Loader (OCR via Gemini Vision for scanned PDF pages)
-           → Cleaning → Chunking → Embedding (BGE-M3, local)
-           → ChromaDB (persisted on disk)
+  Document → Loader (text layer first; OCR only for pages without one, see below)
+           → Cleaning (Unicode, control chars, Persian normalisation) → Chunking
+           → Embedding (BGE-M3, local) → ChromaDB (persisted on disk)
 
 Chat (user):
-  Question → Embed question → Chroma similarity search
+  Question → Persian-normalise → Embed question → Chroma similarity search
            → similarity below threshold? → "not enough information" (no LLM call)
-           → else → RAG prompt → LLM (Gemini primary, OpenRouter fallback)
+           → else → RAG prompt → LLM (OpenRouter)
            → grounded answer + sources (book + page)
 
-Compare (API):
-  Question + two document_ids → retrieve each source independently
+Compare (same chat, or API):
+  "Compare X and Y" detected in the chat, or two document_ids via the API
+           → retrieve each source independently
            → compare prompt (contexts kept strictly separate)
            → LLM → structured comparison (definition/explanation per source + comparison)
 ```
@@ -46,7 +64,7 @@ Compare (API):
 ```text
 Document (PDF/DOCX/TXT)
    → Loader → Cleaning → Chunking → Rejoin
-   → LLM Extraction (Gemini primary, OpenRouter fallback)
+   → LLM Extraction (OpenRouter)
    → Validated Pydantic model (Invoice / Contract / GeneralDocument)
 ```
 
@@ -59,8 +77,8 @@ Document (PDF/DOCX/TXT)
                                 |
                                 ↓
                       ┌─────────────────┐
-                      │ Document Loader │  (OCR fallback via Gemini Vision
-                      └────────┬────────┘   for scanned PDF pages)
+                      │ Document Loader │  (text layer first, multi-engine
+                      └────────┬────────┘   OCR only for scanned pages)
                                |
                                ↓
                  ┌────────────────────────┐
@@ -73,7 +91,7 @@ Document (PDF/DOCX/TXT)
                  ↓                           ↓
      ┌────────────────────┐      ┌───────────────────────┐
      │ Extraction Engine   │      │ RAG Ingestion          │
-     │ Gemini / OpenRouter │      │ BGE-M3 Embedding        │
+     │ OpenRouter          │      │ BGE-M3 Embedding        │
      │ → Pydantic schemas  │      │ → ChromaDB               │
      └──────────┬───────────┘     └───────────┬───────────┘
                  |                             |
@@ -81,13 +99,13 @@ Document (PDF/DOCX/TXT)
                  |                  ┌───────────────────────┐
                  |                  │ RAGService             │
                  |                  │ retrieve → prompt →    │
-                 |                  │ Gemini/OpenRouter →    │
+                 |                  │ OpenRouter →           │
                  |                  │ grounded answer/compare│
                  |                  └───────────┬───────────┘
                  └─────────────┬─────────────────┘
                                ↓
           ┌─────────────────────────────────────────┐
-          │ FastAPI          Streamlit                │
+          │ FastAPI          NiceGUI                  │
           │                  ├─ Chat (users)          │
           │                  └─ Library admin panel   │
           └─────────────────────────────────────────┘
@@ -101,13 +119,14 @@ Document (PDF/DOCX/TXT)
 |----------|------------|
 | Language | Python 3.11+ |
 | Document loading | LangChain loaders (PDF/DOCX/TXT) |
-| OCR (scanned PDFs) | Gemini Vision (structured output, Persian+English) |
-| LLM providers | Google Gemini (primary), OpenRouter (fallback) |
+| PDF text / rendering | PyMuPDF (fallback: pypdf + pdf2image/Poppler) |
+| OCR (scanned pages only) | Engine chain with quality gate: online (Azure Document Intelligence, OpenRouter vision model), local fallback (RapidOCR, English) |
+| LLM providers | OpenRouter (only) |
 | Embeddings | BAAI/bge-m3, local via `sentence-transformers` (free, no API cost) |
 | Vector store | ChromaDB (persisted locally) |
 | Data validation | Pydantic v2 (structured LLM output for both features) |
 | API | FastAPI |
-| UI | Streamlit (right-to-left, Persian) |
+| UI | NiceGUI (right-to-left, Persian) |
 | Testing | Pytest |
 | Deployment | Docker |
 
@@ -139,16 +158,17 @@ DocumentAI/
 │   ├── ingestion.py                # load → clean → chunk → embed → store (file, batch, folder)
 │   └── rag_service.py              # retrieval + grounding threshold + LLM fallback
 ├── src/
-│   ├── loaders/                    # PDF (+OCR fallback) / DOCX / TXT
+│   ├── loaders/                    # PDF (page routing, pdf_pages.py) / DOCX / TXT
+│   ├── ocr/                        # OCR engines, quality checks, fallback pipeline
 │   ├── processing/
-│   │   ├── cleaners/
+│   │   ├── cleaners/               # unicode, text, whitespace, persian (Persian rules)
 │   │   └── chunking/
 │   ├── embedding/embedding.py      # BGE-M3 embedder (LangChain HuggingFaceEmbeddings)
 │   ├── retrieval/vector_store.py   # ChromaDB store: add / query / list / delete
 │   ├── retrieval/session_store.py  # in-memory store for a user's private documents
 │   ├── extraction/
 │   │   ├── prompts.py
-│   │   ├── providers/              # GeminiProvider, OpenRouterProvider (shared by both features)
+│   │   ├── providers/              # OpenRouterProvider (shared by both features: extraction, RAG chat, OCR, figure captions)
 │   │   └── extractor.py
 │   ├── schemas/                    # Extraction-only schemas (Invoice, Contract, GeneralDocument)
 │   └── pipeline/                   # Extraction orchestration
@@ -159,11 +179,12 @@ DocumentAI/
 └── README.md
 ```
 
-**Note on `GeminiProvider`/`OpenRouterProvider` sharing:** both the
-Extraction feature and the RAG feature use the same
-`src/extraction/providers/` — that folder name is a holdover from when the
-project only did extraction; the providers themselves are general-purpose
-(`extract(prompt, schema) -> BaseModel`) and are not extraction-specific.
+**Note on `OpenRouterProvider` sharing:** the Extraction feature, the RAG
+feature (chat + compare), and OCR/figure-captioning all use the same
+`src/extraction/providers/OpenRouterProvider` — that folder name is a
+holdover from when the project only did extraction; the provider itself is
+general-purpose (`extract(prompt, schema)` for text, `extract_image(image,
+prompt, schema)` for vision) and is not extraction-specific.
 
 ---
 
@@ -181,20 +202,25 @@ pip install -r requirements.txt
 
 ### Configuration
 
-Copy `.env.example` to `.env` and fill in:
+Copy `.env` to `.env` and fill in:
 
 ```bash
-GEMINI_API_KEY=your-key       # required — used by extraction, RAG chat, and OCR
-OPENROUTER_API_KEY=your-key   # optional — automatic fallback if Gemini fails
+OPENROUTER_API_KEY=your-key   # required — used by extraction, RAG chat/compare, and online OCR/figure captions
+OPENROUTER_MODEL=             # optional — model slug routed through OpenRouter; must support image input for OCR/figure captions (see .env)
 ADMIN_PASSWORD=choose-one     # required for the library admin panel
-POPPLER_PATH=                 # Windows only — see .env.example
+POPPLER_PATH=                 # Windows only, and only without PyMuPDF — see .env
 ```
+
+OCR settings are optional; see [Scanned PDFs and OCR](#-scanned-pdfs-and-ocr).
+For scanned English PDFs without internet, `pip install rapidocr-onnxruntime`
+(already in `requirements.txt`) and pick **فقط محلی** in the upload form.
 
 The app and the API load `.env` automatically. Never commit it (it is already
 in `.gitignore` and `.dockerignore`).
 
-**Windows extra setup** (Poppler is required by `pdf2image` for OCR and is
-not installable via pip):
+**Windows extra setup, only if PyMuPDF is not installed** (PyMuPDF renders
+scanned pages itself; without it, `pdf2image` needs Poppler, which is not
+installable via pip):
 1. Download Poppler for Windows: https://github.com/oschwartz10612/poppler-windows/releases
 2. Extract it, find the folder containing `pdftoppm.exe` / `pdfinfo.exe`
 3. Set `POPPLER_PATH` in `.env` to that folder
@@ -233,6 +259,13 @@ Open http://localhost:8501.
    books or a single one. **گفتگوی جدید** clears the conversation.
 5. If nothing relevant exists in the library, the app says so instead of
    guessing.
+6. **Compare two sources — in the same chat, no separate screen.** Ask
+   something like "Compare Organic Chemistry and Inorganic Chemistry" (or
+   "کتاب X و کتاب Y را مقایسه کن") right in the chat box. The app detects the
+   two source names, retrieves each independently, and answers with an
+   overall comparison plus each source's own definition/explanation and
+   citations. This reuses the same backend as `POST /api/v1/compare` — see
+   [REST API](#2-rest-api) — it's just wired into the chat input as well now.
 
 **Using your own documents (no library needed).** Switch the selector at the
 top of the chat from **کتابخانه** to **سند من**:
@@ -248,7 +281,7 @@ top of the chat from **کتابخانه** to **سند من**:
 Your files are kept in memory for your session only: they never reach the
 shared vector database and nobody else can search them. To write an answer,
 the passages relevant to your question are still sent to the language-model
-service (Gemini, or OpenRouter as fallback), like any library question. A
+service (OpenRouter), like any library question. A
 private session is limited to about 5,000 text chunks (a few large books).
 This mode also works when the library is empty.
 
@@ -268,8 +301,8 @@ This mode also works when the library is empty.
      the server.
 
    Each file is read, cleaned, chunked, embedded and stored in the vector
-   database; scanned PDF pages are read with Gemini OCR (slower and uses API
-   quota). One failing file does not stop the rest: every file gets its own
+   database; scanned PDF pages go through the OCR engine chain (slower, and cloud
+   engines use API quota). One failing file does not stop the rest: every file gets its own
    result. Hidden files, Word lock files (`~$...`) and unsupported types are
    ignored, and two files with the same name in different sub-folders are
    reported as duplicates (only the first is indexed, because a document id
@@ -279,7 +312,7 @@ This mode also works when the library is empty.
    version is deleted first, then the new file is indexed.
 6. **منابع ایندکس‌شده** lists every book with its number of chunks; **حذف**
    removes a book (with a confirmation step).
-7. **وضعیت تنظیمات** shows whether the Gemini key, the OpenRouter key and
+7. **وضعیت تنظیمات** shows whether the OpenRouter key and
    Poppler are configured. Switch back to **گفتگو** to try the chat as a user
    would, and use **خروج** to sign out.
 
@@ -381,15 +414,174 @@ All tests use mocks (no real API calls, no Poppler/Tesseract/model downloads)
 
 ---
 
+## 🖨 Scanned PDFs and OCR
+
+Reading a PDF page by page, the loader (`src/loaders/pdf_loader.py`) decides
+per page how to get its text:
+
+```text
+page → has a usable text layer? ──yes──→ read it directly (PyMuPDF / pypdf), no OCR
+              │
+              no (scan, empty, or garbage such as reversed Persian)
+              ↓
+        render the page → blank? ──yes──→ skip (no OCR call is paid for)
+              │
+              no
+              ↓
+   classify the page (src/ocr/page_type.py, cheap heuristic — no ML model)
+              │
+      ┌───────┼──────────────┐
+      ↓       ↓               ↓
+    TEXT    TABLE           FIGURE
+   (prose)  (has a grid,   (diagram / chemical structure / chart / photo,
+             even mixed     no table grid — NEVER reaches this branch if
+             with text)     the page also has a table)
+      │       │                │
+      └───┬───┘                ↓
+          ↓             skip: no OCR call, page kept with empty text,
+          ↓             recorded as `extraction=skipped:figure` in its
+          ↓             metadata and in PDFLoadReport.skipped_figure_pages
+          ↓
+   OCR mode "online_first" (default)         OCR mode "local_only"
+   ─────────────────────────────────         ─────────────────────
+   1. Azure Document Intelligence            RapidOCR (local, English)
+   2. OpenRouter (vision-capable model)      (PaddleOCR if you enabled it)
+   3. RapidOCR (local, English)              nothing leaves this machine
+        each result must pass the quality gate (text sanity + engine confidence);
+        a rejected result or an error moves on to the next engine
+              │ nothing passed
+              ↓
+   keep the best result, flagged low quality (never silently dropped)
+```
+
+**Figure/diagram pages are skipped, tables never are.** For this MVP, a
+scanned page classified as mostly a figure/diagram/chemical structure (and
+with no table grid) is not sent to any OCR engine at all — this avoids
+burning OCR calls (and, for the cloud engines, API cost) on content that
+plain-text OCR was never going to read usefully anyway. `classify_page()` is
+a deliberately simple pixel-density heuristic (no layout model): it looks for
+long, unbroken dark runs (ruling lines) to detect a table grid, and checks
+how much of the page the ink covers to tell running text from a smaller,
+more centered figure. **A page with a table is always OCR'd**, even if it
+also contains figures, and even if the table has no visible ruling lines
+(that specific case is a known limitation — see below). A skipped page keeps
+its place in the document (empty text, not removed), with
+`extraction=skipped:figure` in its metadata, `PDFLoadReport.skipped_figure_pages`
+listing every skipped page number, and a line in the loader's log — so it is
+always possible to tell afterwards which pages were *intentionally* left
+unread rather than lost by mistake. `PP-StructureV3` (`LAYOUT_ENGINE=ppstructure`,
+see below) is a separate, heavier, opt-in mechanism that extracts real table/figure
+*blocks* with a proper layout model; this heuristic is only the page-level
+decision of whether to bother with full-page OCR at all.
+
+**Choosing online or local.** Every upload form (the admin's file/ZIP/folder
+forms and the user's "سند من" form) has **روش OCR برای صفحه‌های اسکن‌شده**:
+
+| Choice | What happens | Use it for |
+|---|---|---|
+| آنلاین، و اگر نشد محلی (default) | Page images go to Azure or OpenRouter; if they fail or return junk, local RapidOCR reads the page | Best quality, any language (Persian needs an online engine) |
+| فقط محلی | Only local engines; page images never leave the computer | English documents, confidential files, no internet/API key |
+
+The default for new sessions is `OCR_MODE` (`online_first` unless you change it).
+After indexing, the result line tells which engine read how many pages, for
+example: `OCR: OpenRouter (آنلاین) ۳ صفحه، RapidOCR (محلی) ۱ صفحه`, and warns when
+scanned pages could not be read at all; a separate note reports how many
+pages were skipped as figures/diagrams. Answering questions still uses the
+language model (OpenRouter) in both modes; "local only" concerns the OCR step.
+
+**Missing spaces.** RapidOCR's default model often prints English without spaces
+between words (`Ithasbeenknownforalongtime`), which makes the text useless for
+search. `src/ocr/spacing.py` repairs such lines with `wordninja` (in
+`requirements.txt`), and the quality gate treats text with implausibly long
+letter runs as junk (`missing_spaces`), so a glued page is never accepted as
+good. Without `wordninja` the panel shows it as not ready and local OCR pages are
+flagged low quality. Documents indexed before this fix must be deleted and added again.
+
+**Local OCR is English-only.** RapidOCR ships English/Chinese models, so it is
+the fallback for English documents. Its result is accepted only if it passes the
+quality gate and is mostly Latin text: a Persian page it cannot read is reported
+as unread instead of being indexed as gibberish. For Persian scans use an online
+engine (or opt in to the heavy PaddleOCR Persian model with
+`OCR_ENGINES=azure,openrouter,rapidocr,paddle`).
+
+* **Text layer check** (`src/ocr/quality.py`): enough letters, no private-use or
+  replacement characters, not letter-by-letter, and, for Persian/English, a
+  normal share of common words. Reversed Persian (a legacy-font symptom) is
+  detected because reversed words like `تسا` replace `است`.
+* **OCR quality gate**: the same text checks, a bit stricter
+  (`OCR_MIN_QUALITY`, default 0.7), plus the engine's own confidence
+  (`OCR_MIN_CONFIDENCE`). A confident but garbled result is still rejected.
+* **Observability**: every page records how it was read (`extraction` =
+  `text_layer`, `ocr:<engine>`, `blank`, ...). The loader logs a summary such as
+  `120 pages: text layer=84, OCR=openrouter=30, rapidocr=6, blank=0, low quality=2,
+  skipped figures=3,
+  failed=0`, and `PDFLoader.last_report` holds the same numbers.
+
+Setup:
+
+| Engine | Install / configure |
+|---|---|
+| PyMuPDF (recommended) | `pip install pymupdf`. Faster text extraction and Poppler-free rendering. **License: AGPL-3.0** (commercial licence available from Artifex): check it suits your delivery. Without it, pypdf + Poppler are used. |
+| RapidOCR (local, light) | `pip install rapidocr-onnxruntime` (in `requirements.txt`; CPU only, about 15 MB of models) |
+| Azure Document Intelligence | `AZURE_DI_ENDPOINT` and `AZURE_DI_KEY` (REST, no extra package) |
+| OpenRouter (vision) | `OPENROUTER_API_KEY`; the model chosen via `OPENROUTER_MODEL` must support image input |
+| PaddleOCR (optional, heavy) | `pip install paddleocr paddlepaddle`, add `paddle` to `OCR_ENGINES`, `PADDLE_OCR_LANG=fa` |
+| PP-StructureV3 layout (table/formula/figure) | same install as above; `LAYOUT_ENGINE=ppstructure` (default). If you hit `NotImplementedError: ConvertPirAttribute2RuntimeAttribute ... oneDNN` on CPU (common on Windows), it's already disabled by default — set `PADDLE_ENABLE_MKLDNN=true` only if your install doesn't hit that bug. `PADDLE_DEVICE=gpu` to use a GPU. |
+| PaddleOCR / PP-StructureV3 on GPU (faster) | Needs an NVIDIA GPU with a matching CUDA + cuDNN install. Uninstall the CPU build first (`pip uninstall paddlepaddle`), then install the GPU build for your CUDA version from PaddlePaddle's own index, e.g. for CUDA 12.x: `pip install paddlepaddle-gpu -i https://www.paddlepaddle.org.cn/packages/stable/cu126/` (check https://www.paddlepaddle.org.cn/en/install/quick for the index matching your CUDA version — `nvidia-smi` shows it). `paddleocr` itself stays the same package. Then set `PADDLE_DEVICE=gpu` in `.env` — this applies to both the OCR engine (`paddle` in `OCR_ENGINES`) and the `ppstructure` layout engine. `PADDLE_ENABLE_MKLDNN` is CPU-only and ignored on GPU. |
+
+The admin panel's **وضعیت تنظیمات** shows which of these are ready. The REST API
+takes the same choice: `ocr_mode=online_first|local_only` on `/api/v1/ingest` and
+`/api/v1/ingest/batch`.
+
+**Measure before trusting.** How well RapidOCR reads your scanned English pages
+is not known in advance; run a real scanned book in both modes and compare the
+logged summary and a few answers. Azure and OpenRouter are cloud services: check
+that your network can reach them (a `403 Forbidden` from Google means the request
+was blocked before reaching your key), and that Persian is supported for your
+Azure resource and region.
+
+---
+
+## 🔤 Persian Text Preprocessing
+
+RAG ingestion cleans every page with these steps, in order
+(`src/processing/cleaners/`):
+
+| Step | What it does |
+|---|---|
+| `UnicodeCleaner` | NFKC: turns presentation forms (ﻻ, ﻓ …) into normal letters, `H₂O` into `H2O` |
+| `TextCleaner` | Removes control characters, normalises line endings |
+| `PersianCharacterCleaner` | `ي ك ى ة ۀ` → `ی ک ی ه ه`; removes harakat, kashida and invisible bidi marks; digits `۱۲۳` / `١٢٣` → `123` (formulas like `C6H12O6` stay intact); `٫ ٬ ٪` → `. , %`; keeps a half-space only between two Persian letters |
+| `PersianSpacingCleaner` | Restores half-spaces (`می شود` → `می‌شود`, `کتاب ها` → `کتاب‌ها`, `بزرگ تر` → `بزرگ‌تر`) and fixes spacing around `، ؛ ؟` |
+| `LineWrapCleaner` | Joins lines a PDF broke in the middle of a sentence; keeps headings, list items, sentence ends and blank lines |
+| `WhitespaceCleaner` | Collapses spaces and blank lines |
+
+The user's question is normalised with the same character rules
+(`normalize_query`, applied inside both vector stores), so a question typed with
+Arabic `ي`/`ك` or Persian digits still matches the indexed text. The text sent
+to the LLM as the question is left as typed.
+
+Options: `IngestionPipeline(persian=False)` turns the Persian steps off;
+`PersianCharacterCleaner(digits="persian" | "keep", remove_diacritics=False,
+unify_alef=True)` changes digit style, keeps harakat, or maps `أ إ ٱ` to `ا`
+(off by default). **Documents indexed before this change keep their old
+spelling: delete and re-add them so they match the normalised questions.**
+
+Not covered: PDFs whose text comes out reversed or letter by letter (a font or
+extraction problem, not a spelling one), hyphenated Latin words split across
+lines, and repeated page headers/footers.
+
+---
+
 ## 🎯 Design Notes
 
-- **OCR** uses Gemini Vision, not a traditional OCR engine. Several
-  fully-local/free OCR options were evaluated for Persian scanned text
-  (Tesseract, RapidOCR, PaddleOCR-VL) and none reached acceptable quality
-  or speed for real scanned academic pages — this is a documented,
-  deliberate trade-off, not an oversight. OCR is only invoked for pages
-  where digital text extraction fails, so the API cost stays limited to a
-  minority of pages.
+- **OCR** is a chain, not a single engine. Fully-local options evaluated
+  earlier for Persian scanned text (Tesseract, RapidOCR, PaddleOCR-VL) did not
+  reach acceptable quality or speed on real scanned academic pages, so a cloud
+  engine (OpenRouter, optionally Azure) stays at the end of the chain as the
+  quality backstop, while cheap local extraction and the quality gate keep
+  most pages away from it. OCR only runs for pages where the text layer is
+  missing or unusable.
 - **Embeddings** stay fully local (BGE-M3) — no per-query API cost for
   retrieval, only for LLM generation.
 - **Grounding**: retrieval runs a cheap similarity-threshold check
@@ -419,7 +611,13 @@ All tests use mocks (no real API calls, no Poppler/Tesseract/model downloads)
 - One shared admin password; no per-user accounts or audit log.
 - A document's id is derived from its file name, so two different books with
   the same file name count as the same document.
-- If Gemini OCR fails for a scanned page, that page is silently left out of the index.
+- If every OCR engine fails for a scanned page, that page is left out of the
+  index; the upload result warns how many pages were unread.
+- Local OCR (RapidOCR) reads English only; scanned Persian pages need an online engine.
+- Tables/formulas/figures are pulled out separately only when PP-StructureV3
+  is available (`LAYOUT_ENGINE=ppstructure`, on by default — requires
+  `paddleocr`/`paddlepaddle` to be installed); otherwise they fall back to
+  being read as plain OCR text lines.
 - `src/rag/` is an older, unused RAG draft (it imports a module that no longer
   exists). The active implementation is the top-level `rag/` package.
 
@@ -427,7 +625,6 @@ All tests use mocks (no real API calls, no Poppler/Tesseract/model downloads)
 
 ## 🚀 Roadmap
 
-- Compare view in the Streamlit app (the `/compare` API already exists)
 - Chat memory: rewrite follow-up questions using the conversation
 - Per-user accounts for admins
 - Tune `SIMILARITY_THRESHOLD` and chunk size against a real, larger corpus
@@ -441,7 +638,7 @@ All tests use mocks (no real API calls, no Poppler/Tesseract/model downloads)
 
 ```bash
 pip install -r requirements.txt
-cp .env.example .env        # سپس GEMINI_API_KEY و ADMIN_PASSWORD را پر کنید
+cp .env .env        # سپس OPENROUTER_API_KEY و ADMIN_PASSWORD را پر کنید
 streamlit run app/streamlit_app/app.py
 ```
 
@@ -458,7 +655,9 @@ streamlit run app/streamlit_app/app.py
 
 **افزودن پوشه:** در «مدیریت منابع» دو راه هست: تب «فایل یا ZIP» (چند فایل یا پوشه‌ای که ZIP شده) و تب «پوشه روی این رایانه» (مسیر پوشه روی همان دستگاهی که برنامه اجرا می‌شود). همهٔ PDF، DOCX و TXTهای داخل پوشه (با زیرپوشه‌ها) اضافه می‌شود و برای هر فایل نتیجهٔ جداگانه نشان داده می‌شود.
 
-**سند من (بدون کتابخانه):** بالای صفحهٔ گفتگو از «کتابخانه» به «سند من» بروید، یک فایل، چند فایل یا یک پوشهٔ ZIP‌شده را بارگذاری کنید و سؤال بپرسید. این فایل‌ها فقط در حافظهٔ همین صفحه می‌مانند، در پایگاه برداری کتابخانه ذخیره نمی‌شوند و با «پاک‌کردن سندهای من» یا بستن و تازه‌کردن صفحه از بین می‌روند. توجه: برای نوشتن پاسخ، بخش‌های مرتبط با سؤال به سرویس مدل زبانی (Gemini) فرستاده می‌شود.
+**روش OCR (برای صفحه‌های اسکن‌شده):** کنار هر فرم بارگذاری، دو انتخاب هست. «آنلاین، و اگر نشد محلی» (پیش‌فرض): تصویر صفحه به Azure یا OpenRouter می‌رود و اگر خطا داد یا نتیجهٔ بی‌کیفیت آمد، OCR محلی (RapidOCR) جایگزین می‌شود. «فقط محلی»: هیچ تصویری از رایانه بیرون نمی‌رود. OCR محلی سبک است و فقط برای متن **انگلیسی** مناسب است؛ برای PDF فارسی اسکن‌شده حالت آنلاین لازم است. صفحه‌هایی که خودشان متن دارند اصلاً OCR نمی‌شوند؛ صفحه‌هایی که عمدتاً شکل یا نمودار پیچیده‌اند و جدول ندارند هم اصلاً OCR نمی‌شوند (جدول‌ها همیشه OCR می‌شوند). بعد از بارگذاری، نتیجه نشان می‌دهد هر موتور چند صفحه را خوانده است. برای نصب OCR محلی: `pip install rapidocr-onnxruntime`.
+
+**سند من (بدون کتابخانه):** بالای صفحهٔ گفتگو از «کتابخانه» به «سند من» بروید، یک فایل، چند فایل یا یک پوشهٔ ZIP‌شده را بارگذاری کنید و سؤال بپرسید. این فایل‌ها فقط در حافظهٔ همین صفحه می‌مانند، در پایگاه برداری کتابخانه ذخیره نمی‌شوند و با «پاک‌کردن سندهای من» یا بستن و تازه‌کردن صفحه از بین می‌روند. توجه: برای نوشتن پاسخ، بخش‌های مرتبط با سؤال به سرویس مدل زبانی (OpenRouter) فرستاده می‌شود. برای مقایسهٔ دو منبع هم می‌توانید همین‌جا بنویسید، مثلاً «فلان و بهمان را مقایسه کن».
 
 **نکته:** اگر `ADMIN_PASSWORD` تنظیم نشده باشد، ورود مدیر غیرفعال است.
 

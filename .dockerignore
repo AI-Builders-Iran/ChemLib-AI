@@ -21,8 +21,8 @@ env/
 
 # Environment variables / secrets
 .env
-.env.*
-!.env.example
+.env
+!.env
 
 # Vector store data
 vector_database/

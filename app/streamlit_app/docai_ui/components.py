@@ -8,17 +8,40 @@ All text that originates from files or users is escaped.
 from __future__ import annotations
 
 from html import escape
+from pathlib import Path
 
-from .helpers import (
+from app.text_helpers import (
     display_name,
     element_symbol,
-    page_label,
     tile_color_index,
     to_fa_digits,
 )
 
 # How many shelf tiles the empty-chat screen shows before summarising the rest.
 SHELF_LIMIT = 12
+
+# A small inline "molecule / knowledge-graph" motif for the hero — a benzene
+# ring with three substituent bonds. No external asset, no new dependency;
+# colours come from the CSS custom properties so it follows the theme.
+_HERO_GRAPHIC = (
+    '<svg class="dx-hero-graphic" viewBox="0 0 220 200" aria-hidden="true" '
+    'xmlns="http://www.w3.org/2000/svg">'
+    '<g fill="none" stroke="var(--brand)" stroke-width="1.6" opacity=".55">'
+    '<polygon points="110,20 160,50 160,110 110,140 60,110 60,50" />'
+    '<line x1="110" y1="140" x2="110" y2="180" />'
+    '<line x1="160" y1="110" x2="205" y2="130" />'
+    '<line x1="60" y1="110" x2="15" y2="130" />'
+    "</g>"
+    '<g fill="var(--brand)">'
+    '<circle cx="110" cy="20" r="5"/><circle cx="160" cy="50" r="5"/>'
+    '<circle cx="160" cy="110" r="5"/><circle cx="110" cy="140" r="5"/>'
+    '<circle cx="60" cy="110" r="5"/><circle cx="60" cy="50" r="5"/>'
+    "</g>"
+    '<g fill="var(--t3)">'
+    '<circle cx="110" cy="180" r="6"/><circle cx="205" cy="130" r="6"/><circle cx="15" cy="130" r="6"/>'
+    "</g>"
+    "</svg>"
+)
 
 
 def _tile(file_name: str, page_no: str = "", *, large: bool = False, color_key: str | None = None) -> str:
@@ -36,8 +59,13 @@ def _tile(file_name: str, page_no: str = "", *, large: bool = False, color_key: 
     )
 
 
+def tile(file_name: str) -> str:
+    """Card-sized tile (bigger than mini_tile) — used for the admin document list."""
+    return _tile(file_name)
+
+
 def mini_tile(file_name: str) -> str:
-    """Compact tile used in the admin document list."""
+    """Compact tile — kept for any spot that needs the smallest footprint."""
     color = tile_color_index(file_name)
     return (
         f'<div class="dx-tile dx-tile-mini t{color}">'
@@ -49,10 +77,10 @@ def mini_tile(file_name: str) -> str:
 def brand() -> str:
     return (
         '<div class="dx-brand">'
-        '<div class="dx-tile dx-tile-brand t4"><span class="dx-sym">شی</span></div>'
+        '<div class="dx-tile dx-tile-brand t5"><span class="dx-sym">Cl</span></div>'
         "<div>"
-        '<div class="dx-brand-title">کتابخانهٔ دانشکدهٔ شیمی</div>'
-        '<div class="dx-brand-sub">پرسش و پاسخ از روی کتاب‌های کتابخانه</div>'
+        '<div class="dx-brand-word"><b>ChemLib</b>-AI</div>'
+        '<div class="dx-brand-sub">کتابخانهٔ هوشمند دانشکدهٔ شیمی — پرسش و پاسخ از روی کتاب‌های کتابخانه</div>'
         "</div>"
         "</div>"
     )
@@ -70,10 +98,13 @@ def hero(documents: list[tuple[str, str]]) -> str:
 
     return (
         '<div class="dx-hero">'
+        f"{_HERO_GRAPHIC}"
+        '<div class="dx-hero-badge">⚗️ ChemLib-AI</div>'
         '<div class="dx-hero-title" role="heading" aria-level="1">از کتاب‌های کتابخانه بپرسید</div>'
         '<p class="dx-hero-text">پاسخ فقط از متن منابع ایندکس‌شده ساخته می‌شود و منبع آن زیر پاسخ نشان داده می‌شود. '
         "اگر منبعی پیدا نشود، پاسخی حدس زده نمی‌شود. "
-        "هر پرسش جداگانه جست‌وجو می‌شود؛ نام مفهوم را در خود سؤال بنویسید.</p>"
+        "هر پرسش جداگانه جست‌وجو می‌شود؛ نام مفهوم را در خود سؤال بنویسید. "
+        "برای مقایسهٔ دو منبع همین‌جا بنویسید، مثلاً: «فلان و بهمان را مقایسه کن».</p>"
         '<div class="dx-shelf-label">منابع در دسترس</div>'
         f'<div class="dx-tiles">{tiles}{more}</div>'
         "</div>"
@@ -95,10 +126,12 @@ def private_hero(documents: list[tuple[str, str]]) -> str:
 
     return (
         '<div class="dx-hero">'
+        f"{_HERO_GRAPHIC}"
+        '<div class="dx-hero-badge">⚗️ ChemLib-AI</div>'
         f'<div class="dx-hero-title" role="heading" aria-level="1">{title}</div>'
         '<p class="dx-hero-text">فایل یا پوشهٔ شما فقط در حافظهٔ همین صفحه نگه داشته می‌شود. '
         "در پایگاه دانش کتابخانه ذخیره نمی‌شود و با بستن یا تازه‌کردن صفحه از بین می‌رود. "
-        "برای ساختن پاسخ، بخش‌های مرتبط با سؤال به سرویس مدل زبانی (Gemini یا OpenRouter) فرستاده می‌شود.</p>"
+        "برای ساختن پاسخ، بخش‌های مرتبط با سؤال به سرویس مدل زبانی (OpenRouter) فرستاده می‌شود.</p>"
         f"{shelf}"
         "</div>"
     )
@@ -112,21 +145,9 @@ def empty_library(is_admin: bool) -> str:
     )
     return (
         '<div class="dx-hero">'
+        '<div class="dx-hero-badge">⚗️ ChemLib-AI</div>'
         '<div class="dx-hero-title" role="heading" aria-level="1">کتابخانه هنوز منبعی ندارد</div>'
         f'<p class="dx-hero-text">{escape(action)}</p>'
-        "</div>"
-    )
-
-
-def sources_row(sources: list[dict]) -> str:
-    """Tiles under an answer. ``sources`` items: ``{"file": str, "page": int | None}``."""
-    if not sources:
-        return ""
-    tiles = "".join(_tile(s["file"], page_label(s.get("page"))) for s in sources)
-    return (
-        '<div class="dx-sources">'
-        '<div class="dx-shelf-label">منابع پاسخ</div>'
-        f'<div class="dx-tiles">{tiles}</div>'
         "</div>"
     )
 
@@ -134,6 +155,25 @@ def sources_row(sources: list[dict]) -> str:
 def user_text(text: str) -> str:
     """User message shown literally (no Markdown interpretation)."""
     return f'<div class="dx-user-text">{escape(text).replace(chr(10), "<br>")}</div>'
+
+
+def compare_section(title: str, definition: str, explanation: str) -> str:
+    """One side of a Compare-Sources answer shown in the chat: source name +
+    its own definition/explanation, kept visually separate from the other side."""
+    return (
+        '<div class="dx-compare-section">'
+        f'<div class="dx-compare-title">🧪 {escape(title)}</div>'
+        '<div class="dx-compare-label">تعریف</div>'
+        f'<div class="dx-compare-def">{escape(definition)}</div>'
+        '<div class="dx-compare-label">توضیح</div>'
+        f'<div class="dx-compare-exp">{escape(explanation)}</div>'
+        "</div>"
+    )
+
+
+def compare_summary(text: str) -> str:
+    """The overall comparison paragraph, shown above the two per-source cards."""
+    return f'<div class="dx-compare-summary">{escape(text)}</div>'
 
 
 def not_found(answer: str) -> str:
@@ -144,12 +184,17 @@ def not_found(answer: str) -> str:
     )
 
 
-def doc_line(file_name: str, chunks: int) -> str:
-    """Name and size of an indexed book (admin list); the name is escaped."""
+def doc_card(file_name: str, chunks: int) -> str:
+    """Name, file-type badge, status and size of an indexed book (admin list)."""
+    ext = Path(file_name).suffix.lstrip(".").upper() or "FILE"
     return (
         '<div class="dx-doc">'
         f'<div class="dx-doc-name">{escape(file_name)}</div>'
-        f'<div class="dx-doc-meta">{to_fa_digits(chunks)} بخش</div>'
+        f'<div class="dx-doc-meta">{to_fa_digits(chunks)} بخش ایندکس‌شده</div>'
+        '<div class="dx-doc-badges">'
+        f'<span class="dx-badge">{escape(ext)}</span>'
+        '<span class="dx-badge ok">✓ ایندکس‌شده</span>'
+        "</div>"
         "</div>"
     )
 

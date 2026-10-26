@@ -1,7 +1,7 @@
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 
-from rag.schemas import ChunkResult, IndexedDocument
+from rag.schemas import ChunkResult, IndexedDocument, chunk_order
 from src.embedding.embedding import Embedder
 from src.processing.cleaners.persian import normalize_query
 
@@ -35,6 +35,7 @@ class ChromaVectorStore:
                     "page": chunk.page if chunk.page is not None else -1,
                     "document_id": chunk.document_id,
                     "chunk_id": chunk.chunk_id,
+                    "block_type": chunk.block_type,
                 },
             )
             for chunk in chunks
@@ -59,6 +60,7 @@ class ChromaVectorStore:
                 chunk_id=doc.metadata.get("chunk_id", ""),
                 document_id=doc.metadata.get("document_id", ""),
                 score=score,
+                block_type=doc.metadata.get("block_type", "text"),
             )
             for doc, score in results
         ]
@@ -97,6 +99,43 @@ class ChromaVectorStore:
                 break
 
         return sorted(found.values(), key=lambda d: d.source_file.lower())
+
+    def get_document_chunks(self, document_id: str) -> list[ChunkResult]:
+        """Every stored chunk of ``document_id`` in reading order (no embedding, no similarity search)."""
+        chunks: list[ChunkResult] = []
+        offset = 0
+
+        while True:
+            batch = self._store.get(
+                where={"document_id": document_id},
+                include=["documents", "metadatas"],
+                limit=_PAGE_SIZE,
+                offset=offset,
+            )
+            texts = batch.get("documents") or []
+            metadatas = batch.get("metadatas") or []
+            if not texts:
+                break
+
+            for text, metadata in zip(texts, metadatas):
+                metadata = metadata or {}
+                page = metadata.get("page", -1)
+                chunks.append(
+                    ChunkResult(
+                        text=text or "",
+                        source_file=metadata.get("source_file", document_id),
+                        page=page if page != -1 else None,
+                        chunk_id=metadata.get("chunk_id", ""),
+                        document_id=document_id,
+                        block_type=metadata.get("block_type", "text"),
+                    )
+                )
+
+            offset += len(texts)
+            if len(texts) < _PAGE_SIZE:
+                break
+
+        return sorted(chunks, key=chunk_order)
 
     def has_document(self, document_id: str) -> bool:
         """True if at least one chunk of ``document_id`` is stored."""

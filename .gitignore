@@ -18,8 +18,8 @@ env/
 
 # Environment variables / secrets
 .env
-.env.*
-!.env.example
+.env
+!.env
 
 # Pytest
 .pytest_cache/
@@ -46,3 +46,6 @@ vector_database/
 chroma_data/
 
 # Tests
+tests/
+
+.env

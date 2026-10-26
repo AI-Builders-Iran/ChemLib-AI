@@ -5,6 +5,7 @@ from docai_ui.helpers import (
     TILE_COLOR_COUNT,
     display_name,
     element_symbol,
+    ocr_summary,
     page_label,
     tile_color_index,
     to_fa_digits,
@@ -115,3 +116,9 @@ def test_private_hero_states_that_documents_stay_in_memory():
     assert "dx-tile" not in empty
     assert "dx-tile" in filled and "my notes" in filled
     assert "\n" not in empty and "\n" not in filled
+
+
+def test_ocr_summary_names_engines_and_marks_online_vs_local():
+    assert ocr_summary({}) == ""
+    assert ocr_summary({"gemini": 3, "rapidocr": 1}) == "Gemini (آنلاین) ۳ صفحه، RapidOCR (محلی) ۱ صفحه"
+    assert ocr_summary({"custom": 2}) == "custom ۲ صفحه"

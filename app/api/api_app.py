@@ -15,6 +15,7 @@ Two feature sets share this app:
                              same admin protection as /ingest
     POST /api/v1/chat     -> ask a grounded question
     POST /api/v1/compare  -> compare a concept across two ingested sources
+    POST /api/v1/summarize -> summarize one ingested document (title, overview, key points, key terms)
 
 Run locally:
     uvicorn app.api.api_app:app --reload --port 8000
@@ -48,10 +49,12 @@ from rag.schemas import (
     CompareResponse,
     IngestFileResult,
     IngestResponse,
+    SummaryRequest,
+    SummaryResponse,
 )
+from rag.summarizer import DocumentNotFoundError, EmptyDocumentError, SummarizationError
 from src.extraction.extractor import DocumentExtractor
 from src.extraction.providers.base import LLMProvider
-from src.extraction.providers.gemini_provider import GeminiProvider
 from src.extraction.providers.openrouter_provider import OpenRouterProvider
 from src.pipeline import DocumentPipeline
 from src.retrieval.vector_store import ChromaVectorStore
@@ -62,7 +65,6 @@ SUPPORTED_EXTENSIONS = {".pdf", ".docx", ".txt"}
 
 
 class Provider(str, Enum):
-    GEMINI = "gemini"
     OPENROUTER = "openrouter"
 
 
@@ -92,14 +94,13 @@ def build_extractor(provider: Provider, api_key: str | None) -> DocumentExtracto
     """Builds a DocumentExtractor for the chosen provider.
 
     If ``api_key`` is given, it is used for this request only. Otherwise the
-    provider falls back to its own environment variable
-    (GEMINI_API_KEY / OPENROUTER_API_KEY).
+    provider falls back to its own environment variable (OPENROUTER_API_KEY).
+    ``provider`` is currently always ``Provider.OPENROUTER`` — the parameter
+    and the ``Provider`` enum are kept so a second provider can be added later
+    without changing the endpoint's shape.
     """
     try:
-        if provider == Provider.GEMINI:
-            llm_provider = GeminiProvider(api_key=api_key or None)
-        else:
-            llm_provider = OpenRouterProvider(api_key=api_key or None)
+        llm_provider = OpenRouterProvider(api_key=api_key or None)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
@@ -113,14 +114,14 @@ async def extract_document(
         default=DocumentType.GENERAL, description="Type of document to extract."
     ),
     provider: Provider = Form(
-        default=Provider.GEMINI, description="LLM provider to use for extraction."
+        default=Provider.OPENROUTER, description="LLM provider to use for extraction."
     ),
     api_key: str | None = Form(
         default=None,
         description=(
-            "Your API key for the selected provider. Leave empty to use the "
-            "server's GEMINI_API_KEY / OPENROUTER_API_KEY environment "
-            "variable instead. Never stored or logged."
+            "Your OpenRouter API key. Leave empty to use the server's "
+            "OPENROUTER_API_KEY environment variable instead. Never stored "
+            "or logged."
         ),
     ),
 ):
@@ -153,6 +154,12 @@ async def extract_document(
         "filename": file.filename,
         "data": model_to_dict(result),
     }
+
+
+def _valid_ocr_mode(mode: str | None) -> str | None:
+    if mode is not None and mode not in ("online_first", "local_only"):
+        raise HTTPException(status_code=422, detail="ocr_mode must be 'online_first' or 'local_only'.")
+    return mode
 
 
 def require_admin(x_admin_password: str | None = Header(default=None)) -> None:
@@ -188,14 +195,10 @@ def get_vector_store() -> ChromaVectorStore:
 
 
 def get_rag_service() -> RAGService:
-    """Gemini is primary; OpenRouter is added as a fallback only if configured."""
+    """OpenRouter is the only configured LLM provider."""
     global _rag_service
     if _rag_service is None:
-        providers: list[LLMProvider] = [GeminiProvider()]
-        try:
-            providers.append(OpenRouterProvider())
-        except ValueError:
-            pass  # OPENROUTER_API_KEY not set — fallback simply unavailable
+        providers: list[LLMProvider] = [OpenRouterProvider()]
         _rag_service = RAGService(vector_store=get_vector_store(), providers=providers)
     return _rag_service
 
@@ -208,6 +211,7 @@ def get_rag_service() -> RAGService:
 )
 async def ingest_document(
     file: UploadFile = File(..., description="PDF/DOCX/TXT to index into the library."),
+    ocr_mode: str | None = Form(None, description="Scanned PDFs: 'online_first' (default) or 'local_only'."),
 ):
     extension = Path(file.filename or "").suffix.lower()
     if extension not in SUPPORTED_EXTENSIONS:
@@ -216,12 +220,14 @@ async def ingest_document(
             detail=f"Unsupported file type '{extension}'. Supported: {sorted(SUPPORTED_EXTENSIONS)}",
         )
 
+    mode = _valid_ocr_mode(ocr_mode)  # validate before the try below turns errors into 500s
+
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_path = Path(tmp_dir) / file.filename
         tmp_path.write_bytes(await file.read())
 
         try:
-            pipeline = IngestionPipeline(vector_store=get_vector_store())
+            pipeline = IngestionPipeline(vector_store=get_vector_store(), ocr_mode=mode)
             document_id, chunks_indexed = pipeline.ingest(tmp_path)
         except Exception as exc:  # noqa: BLE001
             raise HTTPException(status_code=500, detail=f"Ingestion failed: {exc}") from exc
@@ -242,9 +248,11 @@ async def ingest_document(
 async def ingest_batch(
     files: list[UploadFile] = File(..., description="PDF/DOCX/TXT files to index (a whole folder can be sent)."),
     overwrite: bool = Form(False, description="Replace documents whose file name is already indexed."),
+    ocr_mode: str | None = Form(None, description="Scanned PDFs: 'online_first' (default) or 'local_only'."),
 ):
     """Index many files in one request. One bad file does not stop the others;
     every file gets its own result (added / replaced / skipped / empty / failed)."""
+    mode = _valid_ocr_mode(ocr_mode)
     results: list[IngestFileResult] = []
     accepted: set[str] = set()
 
@@ -268,7 +276,7 @@ async def ingest_batch(
                 (Path(tmp_dir) / name).write_bytes(await upload.read())
 
         try:
-            pipeline = IngestionPipeline(vector_store=get_vector_store())
+            pipeline = IngestionPipeline(vector_store=get_vector_store(), ocr_mode=mode)
             results.extend(pipeline.ingest_directory(tmp_dir, recursive=False, overwrite=overwrite))
         except Exception as exc:  # noqa: BLE001
             raise HTTPException(status_code=500, detail=f"Batch ingestion failed: {exc}") from exc
@@ -290,6 +298,26 @@ async def compare(request: CompareRequest):
         return get_rag_service().compare_sources(request.question, request.source_a, request.source_b)
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=502, detail=f"Compare failed: {exc}") from exc
+
+
+@app.post("/api/v1/summarize", response_model=SummaryResponse, tags=["RAG"])
+def summarize(request: SummaryRequest):
+    """Summarize one ingested document from its stored chunks.
+
+    404: unknown ``document_id``. 422: the document has no usable text. 502: the LLM failed.
+    A plain ``def`` on purpose: a long document means many LLM calls, which FastAPI then runs
+    in its worker threads instead of blocking the event loop.
+    """
+    try:
+        return get_rag_service().summarize_document(request.document_id)
+    except DocumentNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=f"Document '{exc}' is not indexed.") from exc
+    except EmptyDocumentError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except SummarizationError as exc:
+        raise HTTPException(status_code=502, detail=f"Summarization failed: {exc}") from exc
+    except Exception as exc:  # noqa: BLE001 - e.g. no OPENROUTER_API_KEY, vector store unavailable
+        raise HTTPException(status_code=502, detail=f"Summarization failed: {exc}") from exc
 
 
 # ---------------------------------------------------------------------------

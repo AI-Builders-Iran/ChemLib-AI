@@ -9,11 +9,39 @@ langchain-text-splitters>=0.3
 pypdf>=4.0
 docx2txt>=0.8
 
-# OCR (scanned PDFs, via Gemini Vision — no local OCR engine required)
+# PDF pages and OCR
 pdf2image>=1.17
+requests>=2.31
+# Recommended: reads text layers fast and renders scanned pages without Poppler.
+# License: AGPL-3.0 (or a commercial licence from Artifex) - check it fits your use.
+pymupdf>=1.24
+# Light local OCR (English), used as the fallback when online OCR fails or is not
+# wanted. Pure pip, CPU only, models included (about 15 MB).
+rapidocr-onnxruntime>=1.3
+# Restores the spaces RapidOCR drops between English words (tiny, pure Python).
+wordninja>=2.0
+# Heavy local engine with a Persian model (large download). Enabled here because
+# LAYOUT_ENGINE=ppstructure is turned on below for table/formula/figure layout;
+# also add "paddle" to OCR_ENGINES if you want it used as an OCR engine too.
+# GPU: don't install the paddlepaddle line below — see the "GPU" row in
+# README.md's engine table for the matching paddlepaddle-gpu install command
+# and CUDA/cuDNN prerequisites, then set PADDLE_DEVICE=gpu.
+paddleocr>=2.7
+paddlepaddle>=2.6
+
+# Layout analysis (tables/formulas/figures as their own citable chunks
+# instead of flat page text) — the same paddleocr/paddlepaddle install above
+# also provides PPStructureV3, on by default now (LAYOUT_ENGINE=ppstructure).
+# Recommended: benchmark it on ~20-30 real pages from the library (mixed
+# text/table/formula/figure) before relying on it — see src/layout/. Set
+# LAYOUT_ENGINE=none in .env to fall back to flat text.
+
+# UI: NiceGUI
+nicegui>=3.0
 
 # LLM providers
-google-genai>=0.3
+# Only OpenRouter is used now (via LangChain's init_chat_model, model_provider="openrouter";
+# "openai" is required because OpenRouter speaks the OpenAI-compatible API surface).
 openai>=1.40
 langchain>=0.3
 
@@ -27,9 +55,6 @@ sentence-transformers>=3.0
 fastapi>=0.115
 uvicorn[standard]>=0.30
 python-multipart>=0.0.9
-
-# UI
-streamlit>=1.38
 
 # Tests
 pytest>=8.0

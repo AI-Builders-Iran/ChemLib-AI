@@ -7,7 +7,7 @@ from pathlib import Path
 from pdf2image import convert_from_path
 
 from rag.schemas import OCRResult
-from src.extraction.providers.gemini_provider import GeminiProvider
+from src.extraction.providers.openrouter_provider import OpenRouterProvider
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ RETRY_DELAY_SECONDS = 5
 
 
 def ocr_pdf_page(file: Path | str, page_number: int) -> str:
-    """Rasterize one PDF page (0-indexed) and OCR it via Gemini Vision."""
+    """Rasterize one PDF page (0-indexed) and OCR it via an OpenRouter vision model."""
     try:
         images = convert_from_path(
             str(file),
@@ -41,7 +41,7 @@ def ocr_pdf_page(file: Path | str, page_number: int) -> str:
     if not images:
         return ""
 
-    provider = GeminiProvider()
+    provider = OpenRouterProvider()
 
     for attempt in range(1, MAX_RETRIES + 1):
         try:
@@ -50,11 +50,11 @@ def ocr_pdf_page(file: Path | str, page_number: int) -> str:
         except Exception as e:
             is_last_attempt = attempt == MAX_RETRIES
             logger.warning(
-                f"Gemini OCR attempt {attempt}/{MAX_RETRIES} failed for "
+                f"OpenRouter OCR attempt {attempt}/{MAX_RETRIES} failed for "
                 f"{file} page {page_number}: {e}"
             )
             if is_last_attempt:
-                logger.error(f"Gemini OCR permanently failed for {file} page {page_number}: {e}")
+                logger.error(f"OpenRouter OCR permanently failed for {file} page {page_number}: {e}")
                 return ""
             time.sleep(RETRY_DELAY_SECONDS * attempt)  # backoff: 5s, 10s
 

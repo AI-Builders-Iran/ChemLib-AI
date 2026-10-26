@@ -13,8 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Default: run the FastAPI backend.
-# Override to run Streamlit instead, e.g.:
-#   docker run <image> streamlit run app/streamlit_app/app.py --server.address 0.0.0.0
-EXPOSE 8000 8501
+# Override to run the NiceGUI app instead, e.g.:
+#   docker run <image> python -m app.nicegui_app.main
+EXPOSE 8000 8080
 
 CMD ["uvicorn", "app.api.api_app:app", "--host", "0.0.0.0", "--port", "8000"]

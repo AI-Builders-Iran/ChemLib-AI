@@ -37,7 +37,7 @@ from docai_ui import admin_view, chat_view, components, theme  # noqa: E402
 
 def main() -> None:
     st.set_page_config(
-        page_title="کتابخانهٔ دانشکدهٔ شیمی",
+        page_title="ChemLib-AI | کتابخانهٔ هوشمند شیمی",
         page_icon="⚗️",
         layout="centered",
     )

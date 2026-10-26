@@ -10,6 +10,7 @@ Project modules are imported inside the functions on purpose: ``app.py`` loads
 
 from __future__ import annotations
 
+import importlib.util
 import logging
 import os
 import shutil
@@ -19,9 +20,8 @@ from pathlib import Path
 
 import streamlit as st
 
+from rag import archive
 from rag.schemas import IngestFileResult
-
-from . import archive
 
 logger = logging.getLogger(__name__)
 
@@ -64,21 +64,13 @@ def get_vector_store():
 
 @st.cache_resource(show_spinner=False)
 def get_providers():
-    """Gemini is primary, OpenRouter the fallback; at least one key is required."""
-    from src.extraction.providers.gemini_provider import GeminiProvider
+    """OpenRouter is the only LLM provider; its API key is required."""
     from src.extraction.providers.openrouter_provider import OpenRouterProvider
 
-    providers = []
-    problems: list[str] = []
-    for name, factory in (("Gemini", GeminiProvider), ("OpenRouter", OpenRouterProvider)):
-        try:
-            providers.append(factory())
-        except Exception as exc:  # noqa: BLE001 - a missing key is the common case
-            problems.append(f"{name}: {exc}")
-
-    if not providers:
-        raise LLMNotConfiguredError(" | ".join(problems))
-    return providers
+    try:
+        return [OpenRouterProvider()]
+    except Exception as exc:  # noqa: BLE001 - a missing key is the common case
+        raise LLMNotConfiguredError(f"OpenRouter: {exc}") from exc
 
 
 def make_rag_service(store):
@@ -131,17 +123,21 @@ def clear_private_store() -> None:
 # Ingestion (library admin, or a user's private store when ``store`` is given)
 # ---------------------------------------------------------------------------
 
-def _pipeline(store):
+def _pipeline(store, ocr_mode: str | None = None):
     from rag.ingestion import IngestionPipeline
 
-    return IngestionPipeline(vector_store=store if store is not None else get_vector_store())
+    return IngestionPipeline(
+        vector_store=store if store is not None else get_vector_store(), ocr_mode=ocr_mode
+    )
 
 
 def _failed(name: str, detail: str) -> IngestFileResult:
     return IngestFileResult(filename=name, status="failed", detail=detail)
 
 
-def ingest_upload(filename: str, data: bytes, overwrite: bool, store=None) -> IngestFileResult:
+def ingest_upload(
+    filename: str, data: bytes, overwrite: bool, store=None, ocr_mode: str | None = None
+) -> IngestFileResult:
     """Index one uploaded file. Never raises: problems come back in the result."""
     safe_name = Path(filename).name
     if Path(safe_name).suffix.lower() not in ALLOWED_EXTENSIONS:
@@ -151,7 +147,7 @@ def ingest_upload(filename: str, data: bytes, overwrite: bool, store=None) -> In
         with tempfile.TemporaryDirectory() as tmp_dir:
             path = Path(tmp_dir) / safe_name  # keep the original name: it is the source label
             path.write_bytes(data)
-            return _pipeline(store).ingest_safe(path, overwrite=overwrite)
+            return _pipeline(store, ocr_mode).ingest_safe(path, overwrite=overwrite)
     except Exception as exc:  # noqa: BLE001
         logger.exception("Ingestion failed for %s", safe_name)
         return _failed(safe_name, str(exc))
@@ -163,6 +159,7 @@ def ingest_zip(
     overwrite: bool,
     store=None,
     on_progress: ProgressCallback | None = None,
+    ocr_mode: str | None = None,
 ) -> list[IngestFileResult]:
     """Index every PDF/DOCX/TXT inside an uploaded ZIP (a folder of documents)."""
     name = Path(filename).name
@@ -170,7 +167,7 @@ def ingest_zip(
         with tempfile.TemporaryDirectory() as tmp_dir:
             if not archive.extract_supported(data, tmp_dir):
                 return [_failed(name, "No PDF, DOCX or TXT files were found in the archive.")]
-            return _pipeline(store).ingest_directory(
+            return _pipeline(store, ocr_mode).ingest_directory(
                 tmp_dir, recursive=True, overwrite=overwrite, on_progress=on_progress
             )
     except archive.ArchiveError as exc:
@@ -185,6 +182,7 @@ def ingest_folder(
     recursive: bool,
     overwrite: bool,
     on_progress: ProgressCallback | None = None,
+    ocr_mode: str | None = None,
 ) -> list[IngestFileResult]:
     """Index a folder on the machine running the app (library admin only).
 
@@ -194,7 +192,7 @@ def ingest_folder(
     folder = Path(path_text.strip().strip('"').strip("'")).expanduser()
     if not folder.is_dir():
         raise NotADirectoryError(str(folder))
-    return _pipeline(None).ingest_directory(
+    return _pipeline(None, ocr_mode).ingest_directory(
         folder, recursive=recursive, overwrite=overwrite, on_progress=on_progress
     )
 
@@ -205,13 +203,35 @@ def delete_document(document_id: str) -> int:
     return count
 
 
+OCR_ENGINE_LABELS = {
+    "rapidocr": "OCR محلی: RapidOCR",
+    "paddle": "OCR محلی: PaddleOCR",
+    "azure": "OCR آنلاین: Azure Document Intelligence",
+    "openrouter": "OCR آنلاین: OpenRouter",
+}
+
+
 def system_checks() -> list[tuple[str, bool]]:
     """Configuration checklist shown to the admin (label, ready?)."""
+    from src.loaders.pdf_pages import pymupdf_installed
+    from src.ocr import engine_status
+
     poppler_dir = os.getenv("POPPLER_PATH")
     poppler_ok = Path(poppler_dir).is_dir() if poppler_dir else shutil.which("pdftoppm") is not None
 
-    return [
-        ("کلید Gemini (پاسخ‌گویی و OCR)", bool(os.getenv("GEMINI_API_KEY"))),
-        ("کلید OpenRouter (پشتیبان، اختیاری)", bool(os.getenv("OPENROUTER_API_KEY"))),
-        ("Poppler (برای PDFهای اسکن‌شده)", poppler_ok),
+    checks = [
+        ("کلید OpenRouter (پاسخ‌گویی و OCR آنلاین)", bool(os.getenv("OPENROUTER_API_KEY"))),
+        ("PyMuPDF یا Poppler (خواندن PDFهای اسکن‌شده)", pymupdf_installed() or poppler_ok),
     ]
+    checks += [(OCR_ENGINE_LABELS.get(name, name), ready) for name, ready, _ in engine_status()]
+    checks.append(("wordninja (فاصله‌گذاری متن OCR محلی)", importlib.util.find_spec("wordninja") is not None))
+
+    from src.layout.engines import PPStructureSegmenter
+
+    checks.append(
+        (
+            "لایه‌بندی جدول/فرمول/شکل با PP-StructureV3 (فعال به‌طور پیش‌فرض؛ نیازمند نصب paddleocr/paddlepaddle)",
+            PPStructureSegmenter().available(),
+        )
+    )
+    return checks

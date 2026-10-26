@@ -156,3 +156,74 @@ def test_missing_directory_raises(tmp_path):
 
 def test_supported_extensions_are_the_documented_ones():
     assert ingestion.SUPPORTED_EXTENSIONS == {".pdf", ".docx", ".txt"}
+
+
+def test_persian_cleaners_are_part_of_the_default_pipeline_and_can_be_disabled():
+    from src.processing.cleaners.persian import LineWrapCleaner, PersianCharacterCleaner, PersianSpacingCleaner
+
+    with_persian = [type(c) for c in IngestionPipeline(vector_store=FakeStore())._processor.cleaners]
+    without = [type(c) for c in IngestionPipeline(vector_store=FakeStore(), persian=False)._processor.cleaners]
+
+    for cleaner in (PersianCharacterCleaner, PersianSpacingCleaner, LineWrapCleaner):
+        assert cleaner in with_persian and cleaner not in without
+    assert with_persian[-1].__name__ == "WhitespaceCleaner"
+
+
+def test_default_pipeline_cleans_a_messy_persian_page():
+    from langchain_core.documents import Document
+
+    messy = Document(
+        page_content="  خانۀ  ما در سال ٢٠٢٤ ساخته می شود و كتاب ها\nبسیار مفید هستند و این خط بلند است ،\nبنابراین ادامه دارد.  ",
+        metadata={"page": 0},
+    )
+
+    cleaned = IngestionPipeline(vector_store=FakeStore())._processor.process([messy])[0]
+
+    assert cleaned.page_content == (
+        "خانه ما در سال 2024 ساخته می\u200cشود و کتاب\u200cها بسیار مفید هستند و این خط بلند است، بنابراین ادامه دارد."
+    )
+    assert cleaned.metadata == {"page": 0}
+
+
+def test_result_reports_which_ocr_engines_read_pages_and_how_many_were_unreadable(tmp_path):
+    from collections import Counter
+
+    file = touch(tmp_path, "scan.pdf")
+    pipeline = IngestionPipeline(vector_store=FakeStore())
+
+    def fake_ingest(path, document_id=None):
+        pipeline.last_extraction = Counter({"text_layer": 2, "ocr:gemini": 3, "ocr:rapidocr": 1, "none": 1})
+        return document_id, 6
+
+    pipeline.ingest = fake_ingest
+
+    result = pipeline.ingest_safe(file)
+
+    assert result.status == "added"
+    assert result.ocr_pages == {"gemini": 3, "rapidocr": 1}
+    assert result.unread_pages == 1
+
+
+def test_ocr_mode_reaches_the_document_loader_and_extraction_counts_are_kept(tmp_path, monkeypatch):
+    from langchain_core.documents import Document
+
+    received = {}
+
+    def fake_load(file, ocr_mode=None):
+        received["mode"] = ocr_mode
+        return [
+            Document(page_content="a", metadata={"page": 0, "extraction": "text_layer"}),
+            Document(page_content="b", metadata={"page": 1, "extraction": "ocr:rapidocr"}),
+        ]
+
+    monkeypatch.setattr(ingestion.DocumentLoader, "load", staticmethod(fake_load))
+    store = FakeStore()
+    store.add = lambda chunks: None
+    pipeline = IngestionPipeline(vector_store=store, ocr_mode="local_only")
+    pipeline._processor = type("P", (), {"process": lambda self, docs: docs})()
+    pipeline._chunker = type("C", (), {"chunk": lambda self, doc: [doc]})()
+
+    _, count = pipeline.ingest(touch(tmp_path, "scan.pdf"))
+
+    assert received["mode"] == "local_only" and count == 2
+    assert pipeline.last_extraction == {"text_layer": 1, "ocr:rapidocr": 1}

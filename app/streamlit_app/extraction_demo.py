@@ -26,10 +26,9 @@ ROOT_DIR = Path(__file__).resolve().parents[2]
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-load_dotenv(ROOT_DIR / ".env")  # lets the demo pick up GEMINI_API_KEY / OPENROUTER_API_KEY
+load_dotenv(ROOT_DIR / ".env")  # lets the demo pick up OPENROUTER_API_KEY
 
 from src.extraction.extractor import DocumentExtractor  # noqa: E402
-from src.extraction.providers.gemini_provider import GeminiProvider  # noqa: E402
 from src.extraction.providers.openrouter_provider import OpenRouterProvider  # noqa: E402
 from src.pipeline import DocumentPipeline  # noqa: E402
 from src.schemas.common import DocumentType  # noqa: E402
@@ -42,16 +41,12 @@ DOCUMENT_TYPE_LABELS = {
 }
 
 ENV_KEY_BY_PROVIDER = {
-    "gemini": "GEMINI_API_KEY",
     "openrouter": "OPENROUTER_API_KEY",
 }
 
 
 def build_extractor(provider: str, api_key: str) -> DocumentExtractor:
-    if provider == "gemini":
-        llm_provider = GeminiProvider(api_key=api_key or None)
-    else:
-        llm_provider = OpenRouterProvider(api_key=api_key or None)
+    llm_provider = OpenRouterProvider(api_key=api_key or None)
     return DocumentExtractor(providers=[llm_provider])
 
 
@@ -60,8 +55,8 @@ def render_sidebar() -> tuple[str, str]:
 
     provider = st.sidebar.radio(
         "LLM provider",
-        options=["gemini", "openrouter"],
-        format_func=lambda p: "Google Gemini" if p == "gemini" else "OpenRouter",
+        options=["openrouter"],
+        format_func=lambda p: "OpenRouter",
     )
 
     env_var_name = ENV_KEY_BY_PROVIDER[provider]
@@ -86,7 +81,7 @@ def render_sidebar() -> tuple[str, str]:
 
     st.sidebar.divider()
     st.sidebar.caption(
-        "Tip: set GEMINI_API_KEY or OPENROUTER_API_KEY as an environment "
+        "Tip: set OPENROUTER_API_KEY as an environment "
         "variable before launching the app to skip this field entirely."
     )
 
@@ -103,7 +98,7 @@ def main():
     st.title("📑 DocumentAI")
     st.caption(
         "Upload an invoice or contract and get clean, validated, structured "
-        "JSON back — powered by your choice of LLM (Gemini or OpenRouter)."
+        "JSON back — powered by OpenRouter."
     )
 
     provider, api_key = render_sidebar()

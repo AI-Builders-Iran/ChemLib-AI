@@ -1,0 +1,367 @@
+{
+  "meta": {
+    "run_name": "chemlib_sample_v1_20261016_051152",
+    "timestamp": "2026-10-16T05:11:52+00:00",
+    "dataset": "evaluation\\datasets\\chemlib_sample_v1.json",
+    "dataset_sha256": "cb78f11ed1d2ca6b9d27fc57c7177591010db242f7da67a226f783fbf46718b7",
+    "ragas_version": "0.4.3",
+    "judge_model": "auto",
+    "generator_model": "auto",
+    "metrics": [
+      "faithfulness",
+      "answer_relevancy",
+      "context_precision",
+      "context_recall",
+      "answer_correctness"
+    ],
+    "pipeline": {
+      "chat_top_k": 5,
+      "compare_top_k": 4,
+      "similarity_threshold": 0.2
+    },
+    "library_documents": [
+      "general_chemistry_catalysis_aligned.txt",
+      "molecules-30-03279-v2.pdf",
+      "molecules-31-01213-v2.pdf",
+      "آکریلونیتریل+_208140.pdf",
+      "ایزوبوتیل بنزن.pdf",
+      "تولید اتیلن_دی_آمین از آمین_دار کردن مونو_اتانول_آمین..pdf",
+      "ونیل استات .pdf"
+    ],
+    "notes": [],
+    "invalid_rows": []
+  },
+  "summary": {
+    "overall": {
+      "faithfulness": {
+        "mean": null,
+        "n": 0
+      },
+      "answer_relevancy": {
+        "mean": 0.6848,
+        "n": 1
+      },
+      "context_precision": {
+        "mean": null,
+        "n": 0
+      },
+      "context_recall": {
+        "mean": 1.0,
+        "n": 1
+      },
+      "answer_correctness": {
+        "mean": null,
+        "n": 0
+      }
+    },
+    "by_type": {
+      "direct": {
+        "faithfulness": {
+          "mean": null,
+          "n": 0
+        },
+        "answer_relevancy": {
+          "mean": 0.6848,
+          "n": 1
+        },
+        "context_precision": {
+          "mean": null,
+          "n": 0
+        },
+        "context_recall": {
+          "mean": 1.0,
+          "n": 1
+        },
+        "answer_correctness": {
+          "mean": null,
+          "n": 0
+        }
+      },
+      "multi_step": {
+        "faithfulness": {
+          "mean": null,
+          "n": 0
+        },
+        "answer_relevancy": {
+          "mean": null,
+          "n": 0
+        },
+        "context_precision": {
+          "mean": null,
+          "n": 0
+        },
+        "context_recall": {
+          "mean": null,
+          "n": 0
+        },
+        "answer_correctness": {
+          "mean": null,
+          "n": 0
+        }
+      }
+    },
+    "counts": {
+      "questions": 5,
+      "answered": 5,
+      "failed": 0,
+      "not_grounded": 0,
+      "no_contexts": 0,
+      "scored": 5
+    }
+  },
+  "rows": [
+    {
+      "id": "q01",
+      "type": "direct",
+      "question": "اصل لوشاتلیه چه می‌گوید؟",
+      "reference": "اگر شرایط یک سامانه در حال تعادل، مانند غلظت، فشار یا دما، تغییر کند، سامانه در جهتی جابه‌جا می‌شود که اثر این تغییر را کاهش دهد.",
+      "document": "general_chemistry_catalysis_aligned.txt",
+      "response": "بر اساس متن، اصل لوشاتلیه بیان می‌کند که اگر شرایط یک سامانه در حال تعادل، مانند غلظت، فشار یا دما، تغییر کند، سامانه در جهتی جابه‌جا می‌شود که اثر این تغییر را کاهش دهد.\n\nبه عنوان مثال در ساخت آمونیاک (N₂(g) + 3H₂(g) ⇌ 2NH₃(g)):\n- چون در سمت واکنش‌دهنده‌ها ۴ مول گاز و در سمت محصولات ۲ مول گاز وجود دارد، افزایش فشار تعادل را به سمت تشکیل آمونیاک جابه‌جا می‌کند.\n- واکنش تشکیل آمونیاک گرماده است؛ بنابراین افزایش دما تعادل را به سمت واکنش‌دهنده‌ها و کاهش دما آن را به سمت تشکیل آمونیاک جابه‌جا می‌کند.\n\nتوجه: کاتالیزگر موقعیت تعادل را تغییر نمی‌دهد و فقط سرعت رسیدن به تعادل را افزایش می‌دهد.",
+      "retrieved_contexts": [
+        "مبانی شیمی عمومی\nفصل ششم: تعادل شیمیایی، واکنش‌های برگشت‌پذیر و ساخت آمونیاک\n\nدر یک واکنش برگشت‌پذیر، واکنش در دو جهت رفت و برگشت انجام می‌شود. پس از مدتی، سرعت واکنش رفت و برگشت برابر می‌شود و غلظت مواد دیگر تغییر قابل توجهی نمی‌کند. به این حالت تعادل شیمیایی می‌گویند.\n\nاصل لوشاتلیه بیان می‌کند که اگر شرایط یک سامانه در حال تعادل، مانند غلظت، فشار یا دما، تغییر کند، سامانه در جهتی جابه‌جا می‌شود که اثر این تغییر را کاهش دهد.\n\nساخت آمونیاک به روش هابر\n\nیکی از کاربردهای مهم تعادل شیمیایی در صنعت، ساخت آمونیاک به روش هابر است. در این فرایند، نیتروژن و هیدروژن با یکدیگر واکنش می‌دهند و آمونیاک تشکیل می‌شود:\n\nN2(g) + 3H2(g) ⇌ 2NH3(g)\n\nدر سمت واکنش‌دهنده‌ها چهار مول گاز وجود دارد، در حالی که در سمت محصولات دو مول گاز وجود دارد. بنابراین، طبق اصل لوشاتلیه، افزایش فشار تعادل را به سمت تشکیل آمونیاک جابه‌جا می‌کند.\n\nواکنش تشکیل آمونیاک گرماده است. بنابراین افزایش دما باعث جابه‌جایی تعادل به سمت واکنش‌دهنده‌ها می‌شود، در حالی که کاهش دما از نظر تعادل تشکیل آمونیاک را مطلوب‌تر می‌کند.",
+        "در این نوع کاتالیز، سطح کاتالیزگر اهمیت دارد، زیرا مولکول‌های واکنش‌دهنده می‌توانند روی سطح آن جذب شوند. برهم‌کنش مواد با سطح می‌تواند انجام واکنش را آسان‌تر کند.\n\nساخت آمونیاک و کاتالیز\n\nفرایند هابر یکی از نمونه‌های مهم کاربرد کاتالیز در صنعت شیمیایی است. در این فرایند، استفاده از کاتالیزگر باعث می‌شود واکنش نیتروژن و هیدروژن با سرعت بیشتری انجام شود.\n\nبنابراین باید بین اثر شرایط واکنش و اثر کاتالیزگر تفاوت قائل شد. تغییر فشار و دما می‌تواند بر موقعیت تعادل اثر بگذارد، در حالی که کاتالیزگر سرعت رسیدن به تعادل را افزایش می‌دهد و خود موقعیت تعادل را تغییر نمی‌دهد.\n\nجمع‌بندی\n\nتعادل شیمیایی و اصل لوشاتلیه برای بررسی رفتار واکنش‌های برگشت‌پذیر اهمیت دارند. ساخت آمونیاک به روش هابر نمونه‌ای از یک واکنش صنعتی مهم است که در آن فشار، دما و کاتالیزگر نقش‌های متفاوتی دارند.\n\nکاتالیزگر با کاهش انرژی فعال‌سازی، سرعت واکنش را افزایش می‌دهد. در کاتالیز ناهمگن، سطح کاتالیزگر و جذب مواد روی سطح می‌تواند در انجام واکنش نقش داشته باشد.",
+        "واکنش تشکیل آمونیاک گرماده است. بنابراین افزایش دما باعث جابه‌جایی تعادل به سمت واکنش‌دهنده‌ها می‌شود، در حالی که کاهش دما از نظر تعادل تشکیل آمونیاک را مطلوب‌تر می‌کند.\n\nنقش کاتالیزگر در واکنش‌های شیمیایی\n\nکاتالیزگر ماده‌ای است که سرعت یک واکنش شیمیایی را افزایش می‌دهد، بدون اینکه در پایان واکنش به طور دائمی مصرف شود. کاتالیزگر با فراهم کردن مسیر مناسب‌تر برای انجام واکنش، انرژی فعال‌سازی را کاهش می‌دهد.\n\nکاتالیزگر موقعیت تعادل شیمیایی را تغییر نمی‌دهد. در یک واکنش برگشت‌پذیر، کاتالیزگر می‌تواند سرعت رسیدن سامانه به تعادل را افزایش دهد، اما نسبت نهایی مواد در حالت تعادل را تغییر نمی‌دهد.\n\nکاتالیز ناهمگن\n\nدر کاتالیز ناهمگن، کاتالیزگر و مواد واکنش‌دهنده در فازهای متفاوت قرار دارند. برای مثال، یک ماده جامد می‌تواند به عنوان کاتالیزگر برای واکنش مواد گازی استفاده شود.\n\nدر این نوع کاتالیز، سطح کاتالیزگر اهمیت دارد، زیرا مولکول‌های واکنش‌دهنده می‌توانند روی سطح آن جذب شوند. برهم‌کنش مواد با سطح می‌تواند انجام واکنش را آسان‌تر کند.\n\nساخت آمونیاک و کاتالیز"
+      ],
+      "retrieved": [
+        {
+          "source_file": "general_chemistry_catalysis_aligned.txt",
+          "page": null,
+          "chunk_id": "795e8ccf46_c0",
+          "score": 0.225
+        },
+        {
+          "source_file": "general_chemistry_catalysis_aligned.txt",
+          "page": null,
+          "chunk_id": "795e8ccf46_c2",
+          "score": -0.1268
+        },
+        {
+          "source_file": "general_chemistry_catalysis_aligned.txt",
+          "page": null,
+          "chunk_id": "795e8ccf46_c1",
+          "score": -0.1609
+        }
+      ],
+      "grounded": true,
+      "route": "chat",
+      "seconds": 17.86,
+      "error": null,
+      "scores": {
+        "context_recall": 1.0,
+        "answer_relevancy": 0.6848142098358833,
+        "context_precision": null,
+        "faithfulness": null,
+        "answer_correctness": null
+      },
+      "score_errors": {
+        "context_precision": "APIStatusError: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_f",
+        "faithfulness": "APIStatusError: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_f",
+        "answer_correctness": "APIStatusError: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_f"
+      }
+    },
+    {
+      "id": "q02",
+      "type": "direct",
+      "question": "واکنش ساخت آمونیاک به روش هابر چیست و در هر طرف آن چند مول گاز وجود دارد؟",
+      "reference": "واکنش N₂(g) + 3H₂(g) ⇌ 2NH₃(g) است. در سمت واکنش‌دهنده‌ها چهار مول گاز و در سمت محصولات دو مول گاز وجود دارد.",
+      "document": "general_chemistry_catalysis_aligned.txt",
+      "response": "واکنش هابر برای ساخت آمونیاک چنین است: N₂(g) + 3H₂(g) ⇌ 2NH₃(g). در سمت واکنش‌دهنده‌ها ۴ مول گاز (۱ مول N₂ و ۳ مول H₂) و در سمت محصولات ۲ مول گاز وجود دارد.",
+      "retrieved_contexts": [
+        "مبانی شیمی عمومی\nفصل ششم: تعادل شیمیایی، واکنش‌های برگشت‌پذیر و ساخت آمونیاک\n\nدر یک واکنش برگشت‌پذیر، واکنش در دو جهت رفت و برگشت انجام می‌شود. پس از مدتی، سرعت واکنش رفت و برگشت برابر می‌شود و غلظت مواد دیگر تغییر قابل توجهی نمی‌کند. به این حالت تعادل شیمیایی می‌گویند.\n\nاصل لوشاتلیه بیان می‌کند که اگر شرایط یک سامانه در حال تعادل، مانند غلظت، فشار یا دما، تغییر کند، سامانه در جهتی جابه‌جا می‌شود که اثر این تغییر را کاهش دهد.\n\nساخت آمونیاک به روش هابر\n\nیکی از کاربردهای مهم تعادل شیمیایی در صنعت، ساخت آمونیاک به روش هابر است. در این فرایند، نیتروژن و هیدروژن با یکدیگر واکنش می‌دهند و آمونیاک تشکیل می‌شود:\n\nN2(g) + 3H2(g) ⇌ 2NH3(g)\n\nدر سمت واکنش‌دهنده‌ها چهار مول گاز وجود دارد، در حالی که در سمت محصولات دو مول گاز وجود دارد. بنابراین، طبق اصل لوشاتلیه، افزایش فشار تعادل را به سمت تشکیل آمونیاک جابه‌جا می‌کند.\n\nواکنش تشکیل آمونیاک گرماده است. بنابراین افزایش دما باعث جابه‌جایی تعادل به سمت واکنش‌دهنده‌ها می‌شود، در حالی که کاهش دما از نظر تعادل تشکیل آمونیاک را مطلوب‌تر می‌کند.",
+        "در این نوع کاتالیز، سطح کاتالیزگر اهمیت دارد، زیرا مولکول‌های واکنش‌دهنده می‌توانند روی سطح آن جذب شوند. برهم‌کنش مواد با سطح می‌تواند انجام واکنش را آسان‌تر کند.\n\nساخت آمونیاک و کاتالیز\n\nفرایند هابر یکی از نمونه‌های مهم کاربرد کاتالیز در صنعت شیمیایی است. در این فرایند، استفاده از کاتالیزگر باعث می‌شود واکنش نیتروژن و هیدروژن با سرعت بیشتری انجام شود.\n\nبنابراین باید بین اثر شرایط واکنش و اثر کاتالیزگر تفاوت قائل شد. تغییر فشار و دما می‌تواند بر موقعیت تعادل اثر بگذارد، در حالی که کاتالیزگر سرعت رسیدن به تعادل را افزایش می‌دهد و خود موقعیت تعادل را تغییر نمی‌دهد.\n\nجمع‌بندی\n\nتعادل شیمیایی و اصل لوشاتلیه برای بررسی رفتار واکنش‌های برگشت‌پذیر اهمیت دارند. ساخت آمونیاک به روش هابر نمونه‌ای از یک واکنش صنعتی مهم است که در آن فشار، دما و کاتالیزگر نقش‌های متفاوتی دارند.\n\nکاتالیزگر با کاهش انرژی فعال‌سازی، سرعت واکنش را افزایش می‌دهد. در کاتالیز ناهمگن، سطح کاتالیزگر و جذب مواد روی سطح می‌تواند در انجام واکنش نقش داشته باشد.",
+        "واکنش تشکیل آمونیاک گرماده است. بنابراین افزایش دما باعث جابه‌جایی تعادل به سمت واکنش‌دهنده‌ها می‌شود، در حالی که کاهش دما از نظر تعادل تشکیل آمونیاک را مطلوب‌تر می‌کند.\n\nنقش کاتالیزگر در واکنش‌های شیمیایی\n\nکاتالیزگر ماده‌ای است که سرعت یک واکنش شیمیایی را افزایش می‌دهد، بدون اینکه در پایان واکنش به طور دائمی مصرف شود. کاتالیزگر با فراهم کردن مسیر مناسب‌تر برای انجام واکنش، انرژی فعال‌سازی را کاهش می‌دهد.\n\nکاتالیزگر موقعیت تعادل شیمیایی را تغییر نمی‌دهد. در یک واکنش برگشت‌پذیر، کاتالیزگر می‌تواند سرعت رسیدن سامانه به تعادل را افزایش دهد، اما نسبت نهایی مواد در حالت تعادل را تغییر نمی‌دهد.\n\nکاتالیز ناهمگن\n\nدر کاتالیز ناهمگن، کاتالیزگر و مواد واکنش‌دهنده در فازهای متفاوت قرار دارند. برای مثال، یک ماده جامد می‌تواند به عنوان کاتالیزگر برای واکنش مواد گازی استفاده شود.\n\nدر این نوع کاتالیز، سطح کاتالیزگر اهمیت دارد، زیرا مولکول‌های واکنش‌دهنده می‌توانند روی سطح آن جذب شوند. برهم‌کنش مواد با سطح می‌تواند انجام واکنش را آسان‌تر کند.\n\nساخت آمونیاک و کاتالیز"
+      ],
+      "retrieved": [
+        {
+          "source_file": "general_chemistry_catalysis_aligned.txt",
+          "page": null,
+          "chunk_id": "795e8ccf46_c0",
+          "score": 0.5511
+        },
+        {
+          "source_file": "general_chemistry_catalysis_aligned.txt",
+          "page": null,
+          "chunk_id": "795e8ccf46_c2",
+          "score": 0.5075
+        },
+        {
+          "source_file": "general_chemistry_catalysis_aligned.txt",
+          "page": null,
+          "chunk_id": "795e8ccf46_c1",
+          "score": 0.3831
+        }
+      ],
+      "grounded": true,
+      "route": "chat",
+      "seconds": 2.92,
+      "error": null,
+      "scores": {
+        "faithfulness": null,
+        "answer_relevancy": null,
+        "context_recall": null,
+        "answer_correctness": null,
+        "context_precision": null
+      },
+      "score_errors": {
+        "faithfulness": "APIStatusError: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_f",
+        "answer_relevancy": "APIStatusError: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_f",
+        "context_recall": "APIStatusError: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_f",
+        "answer_correctness": "APIStatusError: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_f",
+        "context_precision": "APIStatusError: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_f"
+      }
+    },
+    {
+      "id": "q03",
+      "type": "multi_step",
+      "question": "چرا افزایش فشار به تشکیل آمونیاک در فرایند هابر کمک می‌کند؟",
+      "reference": "چون سمت واکنش‌دهنده‌ها چهار مول گاز و سمت محصولات دو مول گاز دارد؛ طبق اصل لوشاتلیه افزایش فشار تعادل را به سمت تشکیل آمونیاک، یعنی سمتی با مول گاز کمتر، جابه‌جا می‌کند.",
+      "document": "general_chemistry_catalysis_aligned.txt",
+      "response": "طبق اصل لوشاتلیه، افزایش فشار جابه‌جایی تعادل را به سمتی می‌برد که تعداد مول‌های گاز کمتر است. در واکنش هابر، N₂(g) + 3H₂(g) ⇌ 2NH₃(g)، چهار مول گاز در سمت واکنش‌دهنده‌ها و دو مول در سمت محصولات وجود دارد؛ بنابراین افزایش فشار تعادل را به سمت تشکیل آمونیاک می‌برد.",
+      "retrieved_contexts": [
+        "در این نوع کاتالیز، سطح کاتالیزگر اهمیت دارد، زیرا مولکول‌های واکنش‌دهنده می‌توانند روی سطح آن جذب شوند. برهم‌کنش مواد با سطح می‌تواند انجام واکنش را آسان‌تر کند.\n\nساخت آمونیاک و کاتالیز\n\nفرایند هابر یکی از نمونه‌های مهم کاربرد کاتالیز در صنعت شیمیایی است. در این فرایند، استفاده از کاتالیزگر باعث می‌شود واکنش نیتروژن و هیدروژن با سرعت بیشتری انجام شود.\n\nبنابراین باید بین اثر شرایط واکنش و اثر کاتالیزگر تفاوت قائل شد. تغییر فشار و دما می‌تواند بر موقعیت تعادل اثر بگذارد، در حالی که کاتالیزگر سرعت رسیدن به تعادل را افزایش می‌دهد و خود موقعیت تعادل را تغییر نمی‌دهد.\n\nجمع‌بندی\n\nتعادل شیمیایی و اصل لوشاتلیه برای بررسی رفتار واکنش‌های برگشت‌پذیر اهمیت دارند. ساخت آمونیاک به روش هابر نمونه‌ای از یک واکنش صنعتی مهم است که در آن فشار، دما و کاتالیزگر نقش‌های متفاوتی دارند.\n\nکاتالیزگر با کاهش انرژی فعال‌سازی، سرعت واکنش را افزایش می‌دهد. در کاتالیز ناهمگن، سطح کاتالیزگر و جذب مواد روی سطح می‌تواند در انجام واکنش نقش داشته باشد.",
+        "مبانی شیمی عمومی\nفصل ششم: تعادل شیمیایی، واکنش‌های برگشت‌پذیر و ساخت آمونیاک\n\nدر یک واکنش برگشت‌پذیر، واکنش در دو جهت رفت و برگشت انجام می‌شود. پس از مدتی، سرعت واکنش رفت و برگشت برابر می‌شود و غلظت مواد دیگر تغییر قابل توجهی نمی‌کند. به این حالت تعادل شیمیایی می‌گویند.\n\nاصل لوشاتلیه بیان می‌کند که اگر شرایط یک سامانه در حال تعادل، مانند غلظت، فشار یا دما، تغییر کند، سامانه در جهتی جابه‌جا می‌شود که اثر این تغییر را کاهش دهد.\n\nساخت آمونیاک به روش هابر\n\nیکی از کاربردهای مهم تعادل شیمیایی در صنعت، ساخت آمونیاک به روش هابر است. در این فرایند، نیتروژن و هیدروژن با یکدیگر واکنش می‌دهند و آمونیاک تشکیل می‌شود:\n\nN2(g) + 3H2(g) ⇌ 2NH3(g)\n\nدر سمت واکنش‌دهنده‌ها چهار مول گاز وجود دارد، در حالی که در سمت محصولات دو مول گاز وجود دارد. بنابراین، طبق اصل لوشاتلیه، افزایش فشار تعادل را به سمت تشکیل آمونیاک جابه‌جا می‌کند.\n\nواکنش تشکیل آمونیاک گرماده است. بنابراین افزایش دما باعث جابه‌جایی تعادل به سمت واکنش‌دهنده‌ها می‌شود، در حالی که کاهش دما از نظر تعادل تشکیل آمونیاک را مطلوب‌تر می‌کند.",
+        "واکنش تشکیل آمونیاک گرماده است. بنابراین افزایش دما باعث جابه‌جایی تعادل به سمت واکنش‌دهنده‌ها می‌شود، در حالی که کاهش دما از نظر تعادل تشکیل آمونیاک را مطلوب‌تر می‌کند.\n\nنقش کاتالیزگر در واکنش‌های شیمیایی\n\nکاتالیزگر ماده‌ای است که سرعت یک واکنش شیمیایی را افزایش می‌دهد، بدون اینکه در پایان واکنش به طور دائمی مصرف شود. کاتالیزگر با فراهم کردن مسیر مناسب‌تر برای انجام واکنش، انرژی فعال‌سازی را کاهش می‌دهد.\n\nکاتالیزگر موقعیت تعادل شیمیایی را تغییر نمی‌دهد. در یک واکنش برگشت‌پذیر، کاتالیزگر می‌تواند سرعت رسیدن سامانه به تعادل را افزایش دهد، اما نسبت نهایی مواد در حالت تعادل را تغییر نمی‌دهد.\n\nکاتالیز ناهمگن\n\nدر کاتالیز ناهمگن، کاتالیزگر و مواد واکنش‌دهنده در فازهای متفاوت قرار دارند. برای مثال، یک ماده جامد می‌تواند به عنوان کاتالیزگر برای واکنش مواد گازی استفاده شود.\n\nدر این نوع کاتالیز، سطح کاتالیزگر اهمیت دارد، زیرا مولکول‌های واکنش‌دهنده می‌توانند روی سطح آن جذب شوند. برهم‌کنش مواد با سطح می‌تواند انجام واکنش را آسان‌تر کند.\n\nساخت آمونیاک و کاتالیز"
+      ],
+      "retrieved": [
+        {
+          "source_file": "general_chemistry_catalysis_aligned.txt",
+          "page": null,
+          "chunk_id": "795e8ccf46_c2",
+          "score": 0.5634
+        },
+        {
+          "source_file": "general_chemistry_catalysis_aligned.txt",
+          "page": null,
+          "chunk_id": "795e8ccf46_c0",
+          "score": 0.4323
+        },
+        {
+          "source_file": "general_chemistry_catalysis_aligned.txt",
+          "page": null,
+          "chunk_id": "795e8ccf46_c1",
+          "score": 0.3794
+        }
+      ],
+      "grounded": true,
+      "route": "chat",
+      "seconds": 3.47,
+      "error": null,
+      "scores": {
+        "faithfulness": null,
+        "context_precision": null,
+        "context_recall": null,
+        "answer_relevancy": null,
+        "answer_correctness": null
+      },
+      "score_errors": {
+        "faithfulness": "APIStatusError: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_f",
+        "context_precision": "APIStatusError: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_f",
+        "context_recall": "APIStatusError: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_f",
+        "answer_relevancy": "APIStatusError: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_f",
+        "answer_correctness": "APIStatusError: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_f"
+      }
+    },
+    {
+      "id": "q04",
+      "type": "multi_step",
+      "question": "افزایش دما چه اثری بر تعادل تشکیل آمونیاک دارد و دلیلش چیست؟",
+      "reference": "واکنش تشکیل آمونیاک گرماده است؛ بنابراین افزایش دما تعادل را به سمت واکنش‌دهنده‌ها جابه‌جا می‌کند و کاهش دما از نظر تعادل تشکیل آمونیاک را مطلوب‌تر می‌کند.",
+      "document": "general_chemistry_catalysis_aligned.txt",
+      "response": "افزایش دما تعادل را به سمت واکنش‌دهنده‌ها جابه‌جا می‌کند و تشکیل آمونیاک را از نظر تعادلی نامطلوب‌تر می‌سازد؛ زیرا واکنش تشکیل آمونیاک گرماده است.",
+      "retrieved_contexts": [
+        "واکنش تشکیل آمونیاک گرماده است. بنابراین افزایش دما باعث جابه‌جایی تعادل به سمت واکنش‌دهنده‌ها می‌شود، در حالی که کاهش دما از نظر تعادل تشکیل آمونیاک را مطلوب‌تر می‌کند.\n\nنقش کاتالیزگر در واکنش‌های شیمیایی\n\nکاتالیزگر ماده‌ای است که سرعت یک واکنش شیمیایی را افزایش می‌دهد، بدون اینکه در پایان واکنش به طور دائمی مصرف شود. کاتالیزگر با فراهم کردن مسیر مناسب‌تر برای انجام واکنش، انرژی فعال‌سازی را کاهش می‌دهد.\n\nکاتالیزگر موقعیت تعادل شیمیایی را تغییر نمی‌دهد. در یک واکنش برگشت‌پذیر، کاتالیزگر می‌تواند سرعت رسیدن سامانه به تعادل را افزایش دهد، اما نسبت نهایی مواد در حالت تعادل را تغییر نمی‌دهد.\n\nکاتالیز ناهمگن\n\nدر کاتالیز ناهمگن، کاتالیزگر و مواد واکنش‌دهنده در فازهای متفاوت قرار دارند. برای مثال، یک ماده جامد می‌تواند به عنوان کاتالیزگر برای واکنش مواد گازی استفاده شود.\n\nدر این نوع کاتالیز، سطح کاتالیزگر اهمیت دارد، زیرا مولکول‌های واکنش‌دهنده می‌توانند روی سطح آن جذب شوند. برهم‌کنش مواد با سطح می‌تواند انجام واکنش را آسان‌تر کند.\n\nساخت آمونیاک و کاتالیز",
+        "مبانی شیمی عمومی\nفصل ششم: تعادل شیمیایی، واکنش‌های برگشت‌پذیر و ساخت آمونیاک\n\nدر یک واکنش برگشت‌پذیر، واکنش در دو جهت رفت و برگشت انجام می‌شود. پس از مدتی، سرعت واکنش رفت و برگشت برابر می‌شود و غلظت مواد دیگر تغییر قابل توجهی نمی‌کند. به این حالت تعادل شیمیایی می‌گویند.\n\nاصل لوشاتلیه بیان می‌کند که اگر شرایط یک سامانه در حال تعادل، مانند غلظت، فشار یا دما، تغییر کند، سامانه در جهتی جابه‌جا می‌شود که اثر این تغییر را کاهش دهد.\n\nساخت آمونیاک به روش هابر\n\nیکی از کاربردهای مهم تعادل شیمیایی در صنعت، ساخت آمونیاک به روش هابر است. در این فرایند، نیتروژن و هیدروژن با یکدیگر واکنش می‌دهند و آمونیاک تشکیل می‌شود:\n\nN2(g) + 3H2(g) ⇌ 2NH3(g)\n\nدر سمت واکنش‌دهنده‌ها چهار مول گاز وجود دارد، در حالی که در سمت محصولات دو مول گاز وجود دارد. بنابراین، طبق اصل لوشاتلیه، افزایش فشار تعادل را به سمت تشکیل آمونیاک جابه‌جا می‌کند.\n\nواکنش تشکیل آمونیاک گرماده است. بنابراین افزایش دما باعث جابه‌جایی تعادل به سمت واکنش‌دهنده‌ها می‌شود، در حالی که کاهش دما از نظر تعادل تشکیل آمونیاک را مطلوب‌تر می‌کند.",
+        "در این نوع کاتالیز، سطح کاتالیزگر اهمیت دارد، زیرا مولکول‌های واکنش‌دهنده می‌توانند روی سطح آن جذب شوند. برهم‌کنش مواد با سطح می‌تواند انجام واکنش را آسان‌تر کند.\n\nساخت آمونیاک و کاتالیز\n\nفرایند هابر یکی از نمونه‌های مهم کاربرد کاتالیز در صنعت شیمیایی است. در این فرایند، استفاده از کاتالیزگر باعث می‌شود واکنش نیتروژن و هیدروژن با سرعت بیشتری انجام شود.\n\nبنابراین باید بین اثر شرایط واکنش و اثر کاتالیزگر تفاوت قائل شد. تغییر فشار و دما می‌تواند بر موقعیت تعادل اثر بگذارد، در حالی که کاتالیزگر سرعت رسیدن به تعادل را افزایش می‌دهد و خود موقعیت تعادل را تغییر نمی‌دهد.\n\nجمع‌بندی\n\nتعادل شیمیایی و اصل لوشاتلیه برای بررسی رفتار واکنش‌های برگشت‌پذیر اهمیت دارند. ساخت آمونیاک به روش هابر نمونه‌ای از یک واکنش صنعتی مهم است که در آن فشار، دما و کاتالیزگر نقش‌های متفاوتی دارند.\n\nکاتالیزگر با کاهش انرژی فعال‌سازی، سرعت واکنش را افزایش می‌دهد. در کاتالیز ناهمگن، سطح کاتالیزگر و جذب مواد روی سطح می‌تواند در انجام واکنش نقش داشته باشد."
+      ],
+      "retrieved": [
+        {
+          "source_file": "general_chemistry_catalysis_aligned.txt",
+          "page": null,
+          "chunk_id": "795e8ccf46_c1",
+          "score": 0.501
+        },
+        {
+          "source_file": "general_chemistry_catalysis_aligned.txt",
+          "page": null,
+          "chunk_id": "795e8ccf46_c0",
+          "score": 0.4459
+        },
+        {
+          "source_file": "general_chemistry_catalysis_aligned.txt",
+          "page": null,
+          "chunk_id": "795e8ccf46_c2",
+          "score": 0.4033
+        }
+      ],
+      "grounded": true,
+      "route": "chat",
+      "seconds": 2.33,
+      "error": null,
+      "scores": {
+        "faithfulness": null,
+        "context_precision": null,
+        "answer_correctness": null,
+        "context_recall": null,
+        "answer_relevancy": null
+      },
+      "score_errors": {
+        "faithfulness": "APIStatusError: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_f",
+        "context_precision": "APIStatusError: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_f",
+        "answer_correctness": "APIStatusError: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_f",
+        "context_recall": "APIStatusError: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_f",
+        "answer_relevancy": "APIStatusError: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_f"
+      }
+    },
+    {
+      "id": "q05",
+      "type": "multi_step",
+      "question": "آیا کاتالیزگر موقعیت تعادل را تغییر می‌دهد؟ کاتالیزگر دقیقاً چه اثری دارد؟",
+      "reference": "خیر. کاتالیزگر با کاهش انرژی فعال‌سازی سرعت رسیدن به تعادل را افزایش می‌دهد، اما موقعیت تعادل و نسبت نهایی مواد در حالت تعادل را تغییر نمی‌دهد.",
+      "document": "general_chemistry_catalysis_aligned.txt",
+      "response": "خیر. کاتالیزگر موقعیت تعادل یا نسبت نهایی مواد در حالت تعادل را تغییر نمی‌دهد. با کاهش انرژی فعال‌سازی و فراهم‌کردن مسیر مناسب‌تر، سرعت واکنش را افزایش می‌دهد؛ در واکنش برگشت‌پذیر هم سرعت رسیدن سامانه به تعادل بیشتر می‌شود، اما خود تعادل جابه‌جا نمی‌شود.",
+      "retrieved_contexts": [
+        "واکنش تشکیل آمونیاک گرماده است. بنابراین افزایش دما باعث جابه‌جایی تعادل به سمت واکنش‌دهنده‌ها می‌شود، در حالی که کاهش دما از نظر تعادل تشکیل آمونیاک را مطلوب‌تر می‌کند.\n\nنقش کاتالیزگر در واکنش‌های شیمیایی\n\nکاتالیزگر ماده‌ای است که سرعت یک واکنش شیمیایی را افزایش می‌دهد، بدون اینکه در پایان واکنش به طور دائمی مصرف شود. کاتالیزگر با فراهم کردن مسیر مناسب‌تر برای انجام واکنش، انرژی فعال‌سازی را کاهش می‌دهد.\n\nکاتالیزگر موقعیت تعادل شیمیایی را تغییر نمی‌دهد. در یک واکنش برگشت‌پذیر، کاتالیزگر می‌تواند سرعت رسیدن سامانه به تعادل را افزایش دهد، اما نسبت نهایی مواد در حالت تعادل را تغییر نمی‌دهد.\n\nکاتالیز ناهمگن\n\nدر کاتالیز ناهمگن، کاتالیزگر و مواد واکنش‌دهنده در فازهای متفاوت قرار دارند. برای مثال، یک ماده جامد می‌تواند به عنوان کاتالیزگر برای واکنش مواد گازی استفاده شود.\n\nدر این نوع کاتالیز، سطح کاتالیزگر اهمیت دارد، زیرا مولکول‌های واکنش‌دهنده می‌توانند روی سطح آن جذب شوند. برهم‌کنش مواد با سطح می‌تواند انجام واکنش را آسان‌تر کند.\n\nساخت آمونیاک و کاتالیز",
+        "در این نوع کاتالیز، سطح کاتالیزگر اهمیت دارد، زیرا مولکول‌های واکنش‌دهنده می‌توانند روی سطح آن جذب شوند. برهم‌کنش مواد با سطح می‌تواند انجام واکنش را آسان‌تر کند.\n\nساخت آمونیاک و کاتالیز\n\nفرایند هابر یکی از نمونه‌های مهم کاربرد کاتالیز در صنعت شیمیایی است. در این فرایند، استفاده از کاتالیزگر باعث می‌شود واکنش نیتروژن و هیدروژن با سرعت بیشتری انجام شود.\n\nبنابراین باید بین اثر شرایط واکنش و اثر کاتالیزگر تفاوت قائل شد. تغییر فشار و دما می‌تواند بر موقعیت تعادل اثر بگذارد، در حالی که کاتالیزگر سرعت رسیدن به تعادل را افزایش می‌دهد و خود موقعیت تعادل را تغییر نمی‌دهد.\n\nجمع‌بندی\n\nتعادل شیمیایی و اصل لوشاتلیه برای بررسی رفتار واکنش‌های برگشت‌پذیر اهمیت دارند. ساخت آمونیاک به روش هابر نمونه‌ای از یک واکنش صنعتی مهم است که در آن فشار، دما و کاتالیزگر نقش‌های متفاوتی دارند.\n\nکاتالیزگر با کاهش انرژی فعال‌سازی، سرعت واکنش را افزایش می‌دهد. در کاتالیز ناهمگن، سطح کاتالیزگر و جذب مواد روی سطح می‌تواند در انجام واکنش نقش داشته باشد.",
+        "مبانی شیمی عمومی\nفصل ششم: تعادل شیمیایی، واکنش‌های برگشت‌پذیر و ساخت آمونیاک\n\nدر یک واکنش برگشت‌پذیر، واکنش در دو جهت رفت و برگشت انجام می‌شود. پس از مدتی، سرعت واکنش رفت و برگشت برابر می‌شود و غلظت مواد دیگر تغییر قابل توجهی نمی‌کند. به این حالت تعادل شیمیایی می‌گویند.\n\nاصل لوشاتلیه بیان می‌کند که اگر شرایط یک سامانه در حال تعادل، مانند غلظت، فشار یا دما، تغییر کند، سامانه در جهتی جابه‌جا می‌شود که اثر این تغییر را کاهش دهد.\n\nساخت آمونیاک به روش هابر\n\nیکی از کاربردهای مهم تعادل شیمیایی در صنعت، ساخت آمونیاک به روش هابر است. در این فرایند، نیتروژن و هیدروژن با یکدیگر واکنش می‌دهند و آمونیاک تشکیل می‌شود:\n\nN2(g) + 3H2(g) ⇌ 2NH3(g)\n\nدر سمت واکنش‌دهنده‌ها چهار مول گاز وجود دارد، در حالی که در سمت محصولات دو مول گاز وجود دارد. بنابراین، طبق اصل لوشاتلیه، افزایش فشار تعادل را به سمت تشکیل آمونیاک جابه‌جا می‌کند.\n\nواکنش تشکیل آمونیاک گرماده است. بنابراین افزایش دما باعث جابه‌جایی تعادل به سمت واکنش‌دهنده‌ها می‌شود، در حالی که کاهش دما از نظر تعادل تشکیل آمونیاک را مطلوب‌تر می‌کند."
+      ],
+      "retrieved": [
+        {
+          "source_file": "general_chemistry_catalysis_aligned.txt",
+          "page": null,
+          "chunk_id": "795e8ccf46_c1",
+          "score": 0.5181
+        },
+        {
+          "source_file": "general_chemistry_catalysis_aligned.txt",
+          "page": null,
+          "chunk_id": "795e8ccf46_c2",
+          "score": 0.4851
+        },
+        {
+          "source_file": "general_chemistry_catalysis_aligned.txt",
+          "page": null,
+          "chunk_id": "795e8ccf46_c0",
+          "score": 0.2576
+        }
+      ],
+      "grounded": true,
+      "route": "chat",
+      "seconds": 3.06,
+      "error": null,
+      "scores": {
+        "faithfulness": null,
+        "context_precision": null,
+        "answer_correctness": null,
+        "answer_relevancy": null,
+        "context_recall": null
+      },
+      "score_errors": {
+        "faithfulness": "APIStatusError: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_f",
+        "context_precision": "APIStatusError: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_f",
+        "answer_correctness": "APIStatusError: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_f",
+        "answer_relevancy": "APIStatusError: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_f",
+        "context_recall": "APIStatusError: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_f"
+      }
+    }
+  ]
+}

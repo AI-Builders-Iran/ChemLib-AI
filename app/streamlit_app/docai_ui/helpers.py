@@ -58,7 +58,11 @@ def tile_color_index(key: str) -> int:
 
 
 def unique_sources(sources: Iterable[dict]) -> list[dict]:
-    """Collapse chunk-level sources into unique (file, page) pairs, sorted."""
+    """Collapse chunk-level sources into unique (file, page) pairs, sorted.
+
+    Keeps the first non-empty ``snippet`` seen for each (file, page) pair, for
+    a citation preview in the UI.
+    """
     seen: set[tuple[str, int | None]] = set()
     unique: list[dict] = []
     for source in sources:
@@ -66,6 +70,24 @@ def unique_sources(sources: Iterable[dict]) -> list[dict]:
         if key in seen:
             continue
         seen.add(key)
-        unique.append({"file": source["file"], "page": source.get("page")})
+        unique.append(
+            {"file": source["file"], "page": source.get("page"), "snippet": source.get("snippet", "")}
+        )
     unique.sort(key=lambda s: (s["file"].lower(), -1 if s["page"] is None else s["page"]))
     return unique
+
+
+OCR_ENGINE_NAMES = {
+    "openrouter": "OpenRouter (آنلاین)",
+    "azure": "Azure (آنلاین)",
+    "rapidocr": "RapidOCR (محلی)",
+    "paddle": "PaddleOCR (محلی)",
+}
+
+
+def ocr_summary(ocr_pages: dict[str, int]) -> str:
+    """'OpenRouter (آنلاین) ۳ صفحه، RapidOCR (محلی) ۱ صفحه' (empty when nothing was OCR'd)."""
+    return "، ".join(
+        f"{OCR_ENGINE_NAMES.get(engine, engine)} {to_fa_digits(count)} صفحه"
+        for engine, count in sorted(ocr_pages.items())
+    )
